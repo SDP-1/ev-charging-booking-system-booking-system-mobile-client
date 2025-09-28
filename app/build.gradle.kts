@@ -1,17 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
 }
 
 android {
     namespace = "com.example.ev_charging_booking_system_booking_system"
-    compileSdk = 36
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.ev_charging_booking_system_booking_system"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -33,7 +32,6 @@ android {
     }
     buildFeatures {
         viewBinding = true
-        compose = true
     }
 }
 
@@ -55,6 +53,25 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
     implementation(libs.activity)
+    
+    // HTTP Client for API calls
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    
+    // JSON parsing
+    implementation("com.google.code.gson:gson:2.10.1")
+    
+    // QR Code scanning and generation
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.1")
+    
+    // Location services for maps
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    
+    // Image loading for profile pictures
+    implementation("com.github.bumptech.glide:glide:4.15.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
