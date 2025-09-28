@@ -22,10 +22,16 @@ public class User {
     @SerializedName("active")
     private boolean active;
     
-    // Additional fields for local storage
+    // Additional fields for local storage and API
+    @SerializedName("name")
     private String name;
+    
+    @SerializedName("phone")
     private String phone;
+    
+    @SerializedName("email")
     private String email;
+    
     private Date createdAt;
     private Date lastUpdated;
 

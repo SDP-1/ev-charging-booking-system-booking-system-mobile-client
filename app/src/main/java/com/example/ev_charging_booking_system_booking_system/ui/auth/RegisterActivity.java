@@ -195,6 +195,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Create user object for registration (EVOwner role)
         User user = new User(username, password, "EVOwner", nic);
+        user.setId("000000000000000000000000"); // Set a valid MongoDB ObjectId format placeholder
         user.setName(name);
         user.setPhone(phone);
         user.setEmail(email);
