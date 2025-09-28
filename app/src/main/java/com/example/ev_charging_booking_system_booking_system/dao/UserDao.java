@@ -19,13 +19,13 @@ public class UserDao {
     public boolean createUser(User user) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("nic", user.nic);
-        cv.put("name", user.name);
-        cv.put("phone", user.phone);
-        cv.put("email", user.email);
-        cv.put("created_at", user.createdAt == 0 ? System.currentTimeMillis() : user.createdAt);
-        cv.put("active", user.active ? 1 : 0);
-        cv.put("last_updated", user.lastUpdated == 0 ? System.currentTimeMillis() : user.lastUpdated);
+        cv.put("nic", user.getNic());
+        cv.put("name", user.getName());
+        cv.put("phone", user.getPhone());
+        cv.put("email", user.getEmail());
+        cv.put("created_at", user.getCreatedAt() == null ? System.currentTimeMillis() : user.getCreatedAt().getTime());
+        cv.put("active", user.isActive() ? 1 : 0);
+        cv.put("last_updated", user.getLastUpdated() == null ? System.currentTimeMillis() : user.getLastUpdated().getTime());
 
         long row = -1;
         try {
@@ -46,13 +46,13 @@ public class UserDao {
             c = db.query("Users", null, "nic = ?", new String[]{nic}, null, null, null);
             if (c != null && c.moveToFirst()) {
                 User u = new User();
-                u.nic = c.getString(c.getColumnIndexOrThrow("nic"));
-                u.name = c.getString(c.getColumnIndexOrThrow("name"));
-                u.phone = c.getString(c.getColumnIndexOrThrow("phone"));
-                u.email = c.getString(c.getColumnIndexOrThrow("email"));
-                u.createdAt = c.getLong(c.getColumnIndexOrThrow("created_at"));
-                u.active = c.getInt(c.getColumnIndexOrThrow("active")) == 1;
-                u.lastUpdated = c.getLong(c.getColumnIndexOrThrow("last_updated"));
+                u.setNic(c.getString(c.getColumnIndexOrThrow("nic")));
+                u.setName(c.getString(c.getColumnIndexOrThrow("name")));
+                u.setPhone(c.getString(c.getColumnIndexOrThrow("phone")));
+                u.setEmail(c.getString(c.getColumnIndexOrThrow("email")));
+                u.setCreatedAt(new java.util.Date(c.getLong(c.getColumnIndexOrThrow("created_at"))));
+                u.setActive(c.getInt(c.getColumnIndexOrThrow("active")) == 1);
+                u.setLastUpdated(new java.util.Date(c.getLong(c.getColumnIndexOrThrow("last_updated"))));
                 return u;
             }
         } finally {
@@ -65,11 +65,11 @@ public class UserDao {
     public boolean updateUser(User user) {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("name", user.name);
-        cv.put("phone", user.phone);
-        cv.put("email", user.email);
+        cv.put("name", user.getName());
+        cv.put("phone", user.getPhone());
+        cv.put("email", user.getEmail());
         cv.put("last_updated", System.currentTimeMillis());
-        int rows = db.update("Users", cv, "nic = ?", new String[]{user.nic});
+        int rows = db.update("Users", cv, "nic = ?", new String[]{user.getNic()});
         return rows > 0;
     }
 

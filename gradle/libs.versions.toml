@@ -1,21 +1,21 @@
 [versions]
-agp = "8.13.0"
+agp = "8.3.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.6.1"
 material = "1.10.0"
 constraintlayout = "2.1.4"
-lifecycleLivedataKtx = "2.9.4"
-lifecycleViewmodelKtx = "2.9.4"
+lifecycleLivedataKtx = "2.8.6"
+lifecycleViewmodelKtx = "2.8.6"
 navigationFragment = "2.6.0"
 navigationUi = "2.6.0"
 playServicesMaps = "19.2.0"
-kotlin = "2.0.21"
-lifecycleRuntimeKtx = "2.9.4"
-activityCompose = "1.11.0"
-composeBom = "2024.09.00"
-activity = "1.11.0"
+kotlin = "1.8.10"
+lifecycleRuntimeKtx = "2.8.6"
+activityCompose = "1.8.2"
+composeBom = "2023.10.01"
+activity = "1.8.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -44,5 +44,4 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 

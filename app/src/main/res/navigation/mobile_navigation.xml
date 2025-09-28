@@ -29,4 +29,10 @@
         android:label="@string/string_dashbord"
         tools:layout="@layout/activity_dashboard" />
 
+    <activity
+        android:id="@+id/nav_profile"
+        android:name="com.example.ev_charging_booking_system_booking_system.ui.profile.UserProfileActivity"
+        android:label="User Profile"
+        tools:layout="@layout/activity_user_profile" />
+
 </navigation>

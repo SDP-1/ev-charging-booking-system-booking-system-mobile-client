@@ -10,4 +10,15 @@
     <color name="lavender">#8692f7</color>
 
     <color name="purple">#FF6200EE</color>
+    
+    <!-- Button Colors for Better Visibility and Action Distinction -->
+    <color name="button_primary">#FF2196F3</color>        <!-- Blue for primary actions (View, Book) -->
+    <color name="button_success">#FF4CAF50</color>        <!-- Green for positive actions (Update, Save) -->
+    <color name="button_warning">#FFFF9800</color>        <!-- Orange for attention actions (QR Code) -->
+    <color name="button_danger">#FFF44336</color>         <!-- Red for destructive actions (Cancel, Delete) -->
+    <color name="button_secondary">#FF9E9E9E</color>      <!-- Gray for secondary actions -->
+    
+    <!-- Text colors for buttons -->
+    <color name="button_text_light">#FFFFFFFF</color>     <!-- White text for dark backgrounds -->
+    <color name="button_text_dark">#FF000000</color>      <!-- Dark text for light backgrounds -->
 </resources>
