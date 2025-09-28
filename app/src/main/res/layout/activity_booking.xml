@@ -50,17 +50,29 @@
                 android:clickable="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGetSlots"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get Available Time Slots"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/button_text_light"
+            android:backgroundTint="@color/design_default_color_primary"
+            style="@style/Widget.MaterialComponents.Button" />
+
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutSelectedSlot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
+            android:visibility="gone"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etReservationTime"
+                android:id="@+id/etSelectedSlot"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Reservation Time"
+                android:hint="Selected Time Slot"
                 android:inputType="none"
                 android:focusable="false"
                 android:clickable="true" />

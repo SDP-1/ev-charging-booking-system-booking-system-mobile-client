@@ -1,29 +1,22 @@
 package com.example.ev_charging_booking_system_booking_system.models.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 public class CreateBookingDto {
-    private String stationId;
-    private String reservationDateTime; // ISO format
+    @SerializedName("slotId")
+    private String slotId;
 
     public CreateBookingDto() {}
 
-    public CreateBookingDto(String stationId, String reservationDateTime) {
-        this.stationId = stationId;
-        this.reservationDateTime = reservationDateTime;
+    public CreateBookingDto(String slotId) {
+        this.slotId = slotId;
     }
 
-    public String getStationId() {
-        return stationId;
+    public String getSlotId() {
+        return slotId;
     }
 
-    public void setStationId(String stationId) {
-        this.stationId = stationId;
-    }
-
-    public String getReservationDateTime() {
-        return reservationDateTime;
-    }
-
-    public void setReservationDateTime(String reservationDateTime) {
-        this.reservationDateTime = reservationDateTime;
+    public void setSlotId(String slotId) {
+        this.slotId = slotId;
     }
 }

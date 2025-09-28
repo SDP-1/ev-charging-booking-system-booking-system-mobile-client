@@ -34,9 +34,41 @@ public class BookingRepository {
         return sharedPreferences.getString("auth_token", "");
     }
 
+    // Get available slots for a station and date
+    public void getAvailableSlots(String stationId, String date, BookingCallback<List<ChargingSlotDto>> callback) {
+        Call<List<ChargingSlotDto>> call = apiService.getAvailableSlots(stationId, date);
+        
+        call.enqueue(new Callback<List<ChargingSlotDto>>() {
+            @Override
+            public void onResponse(Call<List<ChargingSlotDto>> call, Response<List<ChargingSlotDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    String errorMessage = "Failed to get available slots. Code: " + response.code();
+                    if (response.errorBody() != null) {
+                        try {
+                            errorMessage += " - " + response.errorBody().string();
+                        } catch (Exception e) {
+                            // Ignore
+                        }
+                    }
+                    Log.e("BookingRepository", errorMessage);
+                    callback.onError(errorMessage);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ChargingSlotDto>> call, Throwable t) {
+                String errorMessage = "Network error: " + t.getMessage();
+                Log.e("BookingRepository", errorMessage, t);
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
     // Create new booking/reservation
-    public void createBooking(String stationId, String reservationDateTime, BookingCallback<BookingResponseDto> callback) {
-        CreateBookingDto createBookingDto = new CreateBookingDto(stationId, reservationDateTime);
+    public void createBooking(String slotId, BookingCallback<BookingResponseDto> callback) {
+        CreateBookingDto createBookingDto = new CreateBookingDto(slotId);
         
         Call<BookingResponseDto> call = apiService.createBooking(createBookingDto);
         call.enqueue(new Callback<BookingResponseDto>() {

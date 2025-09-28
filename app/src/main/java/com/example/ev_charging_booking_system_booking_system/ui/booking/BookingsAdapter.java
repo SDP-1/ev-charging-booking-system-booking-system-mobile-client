@@ -83,13 +83,25 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
         }
         
         public void bind(BookingResponseDto booking) {
-            // Truncate booking ID for display
-            String displayId = booking.getId().length() > 8 ? 
-                booking.getId().substring(0, 8) + "..." : booking.getId();
+            // Truncate booking ID for display with null safety
+            String bookingId = booking.getId();
+            String displayId;
+            if (bookingId != null && bookingId.length() > 8) {
+                displayId = bookingId.substring(0, 8) + "...";
+            } else if (bookingId != null) {
+                displayId = bookingId;
+            } else {
+                displayId = "N/A";
+            }
             tvBookingId.setText("ID: " + displayId);
             
-            tvStationId.setText("Station: " + booking.getStationId());
-            tvReservationDateTime.setText("Date: " + formatDateTime(booking.getReservationDateTime()));
+            // Add null safety for station ID
+            String stationId = booking.getStationId();
+            tvStationId.setText("Station: " + (stationId != null ? stationId : "N/A"));
+            
+            // Add null safety for reservation date time
+            String reservationDateTime = booking.getReservationDateTime();
+            tvReservationDateTime.setText("Date: " + (reservationDateTime != null ? formatDateTime(reservationDateTime) : "N/A"));
             
             // Set status
             String status = getBookingStatus(booking);
@@ -104,7 +116,8 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             }
             
             // Disable update for completed, canceled bookings or if too close to reservation time
-            boolean canUpdate = !booking.isCompleted() && !booking.isCanceled() && canStillUpdate(booking.getReservationDateTime());
+            boolean canUpdate = !booking.isCompleted() && !booking.isCanceled() && 
+                              reservationDateTime != null && canStillUpdate(reservationDateTime);
             btnUpdateBooking.setEnabled(canUpdate);
             btnUpdateBooking.setAlpha(canUpdate ? 1.0f : 0.5f);
             

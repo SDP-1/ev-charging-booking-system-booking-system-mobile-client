@@ -4,8 +4,8 @@ import com.google.gson.annotations.SerializedName;
 
 public class BookingResponseDto {
     
-    @SerializedName("bookingId")
-    private String id;  // Keep as 'id' internally for backward compatibility
+    @SerializedName("id")
+    private String id;  // Changed from "bookingId" to "id" to match backend response
     
     @SerializedName("userId")
     private String userId;
