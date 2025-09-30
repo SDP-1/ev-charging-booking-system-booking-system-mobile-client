@@ -94,8 +94,8 @@ public class BookingRepository {
     }
 
     // Update existing booking
-    public void updateBooking(String bookingId, String stationId, String reservationDateTime, BookingCallback<BookingResponseDto> callback) {
-        UpdateBookingDto updateBookingDto = new UpdateBookingDto(stationId, reservationDateTime);
+    public void updateBooking(String bookingId, String stationId, String slotId, BookingCallback<BookingResponseDto> callback) {
+        UpdateBookingDto updateBookingDto = new UpdateBookingDto(stationId, slotId);
         
         Call<BookingResponseDto> call = apiService.updateBooking(bookingId, updateBookingDto);
         call.enqueue(new Callback<BookingResponseDto>() {

@@ -13,8 +13,10 @@ import com.example.ev_charging_booking_system_booking_system.models.dto.BookingR
 import com.example.ev_charging_booking_system_booking_system.models.dto.ChargingSlotDto;
 import com.example.ev_charging_booking_system_booking_system.repository.BookingRepository;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -189,9 +191,22 @@ public class BookingActivity extends AppCompatActivity {
     private String formatSlotTime(String isoDateTime) {
         try {
             // Parse ISO datetime and format as HH:mm
-            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-            java.util.Date date = isoFormat.parse(isoDateTime);
+            SimpleDateFormat isoFormatWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            SimpleDateFormat isoFormatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            SimpleDateFormat isoFormatNoZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            
+            java.util.Date date = null;
+            try {
+                date = isoFormatWithMillis.parse(isoDateTime);
+            } catch (Exception e1) {
+                try {
+                    date = isoFormatWithoutMillis.parse(isoDateTime);
+                } catch (Exception e2) {
+                    date = isoFormatNoZ.parse(isoDateTime);
+                }
+            }
+            
             return timeFormat.format(date);
         } catch (Exception e) {
             return isoDateTime; // fallback to original string
@@ -234,8 +249,50 @@ public class BookingActivity extends AppCompatActivity {
     }
     
     private void updateBooking() {
-        // For now, just show a message that this feature needs slot-based implementation
-        Toast.makeText(this, "Update booking feature needs to be implemented with slot system", Toast.LENGTH_SHORT).show();
+        if (bookingId == null || bookingId.isEmpty()) {
+            Toast.makeText(this, "Booking ID is not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String stationId = binding.etStationId.getText().toString().trim();
+        
+        if (stationId.isEmpty()) {
+            Toast.makeText(this, "Please enter Station ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedSlot == null) {
+            Toast.makeText(this, "Please select a new time slot", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        showProgress(true);
+
+        // Call the repository to update the booking
+        bookingRepository.updateBooking(bookingId, stationId, selectedSlot.getId(), new BookingRepository.BookingCallback<BookingResponseDto>() {
+            @Override
+            public void onSuccess(BookingResponseDto result) {
+                runOnUiThread(() -> {
+                    showProgress(false);
+                    Toast.makeText(BookingActivity.this, "Booking updated successfully!", Toast.LENGTH_LONG).show();
+                    
+                    // Update the current booking and refresh display
+                    currentBooking = result;
+                    displayBookingSummary(result);
+                    
+                    // Switch back to view mode
+                    disableEditMode();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    showProgress(false);
+                    Toast.makeText(BookingActivity.this, "Error updating booking: " + error, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
     
     private void cancelBooking() {
@@ -294,9 +351,19 @@ public class BookingActivity extends AppCompatActivity {
         binding.etStationId.setText(booking.getStationId());
         
         try {
-            SimpleDateFormat backendFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-            selectedDateTime.setTime(backendFormat.parse(booking.getReservationDateTime()));
+            // Try parsing with milliseconds first, then without milliseconds
+            SimpleDateFormat backendFormatWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            SimpleDateFormat backendFormatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
             
+            Date parsedDate = null;
+            try {
+                parsedDate = backendFormatWithMillis.parse(booking.getReservationDateTime());
+            } catch (ParseException e1) {
+                // If parsing with milliseconds fails, try without milliseconds
+                parsedDate = backendFormatWithoutMillis.parse(booking.getReservationDateTime());
+            }
+            
+            selectedDateTime.setTime(parsedDate);
             binding.etReservationDate.setText(dateFormat.format(selectedDateTime.getTime()));
         } catch (Exception e) {
             android.util.Log.e("BookingActivity", "Error parsing date", e);
@@ -344,24 +411,44 @@ public class BookingActivity extends AppCompatActivity {
     
     private String formatDateTime(String isoDateTime) {
         try {
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            SimpleDateFormat inputFormatWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            SimpleDateFormat inputFormatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            SimpleDateFormat inputFormatNoZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
             SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' HH:mm", Locale.getDefault());
-            return outputFormat.format(inputFormat.parse(isoDateTime));
+            
+            Date parsedDate = null;
+            try {
+                parsedDate = inputFormatWithMillis.parse(isoDateTime);
+            } catch (Exception e1) {
+                try {
+                    parsedDate = inputFormatWithoutMillis.parse(isoDateTime);
+                } catch (Exception e2) {
+                    parsedDate = inputFormatNoZ.parse(isoDateTime);
+                }
+            }
+            
+            return outputFormat.format(parsedDate);
         } catch (Exception e) {
             return isoDateTime;
         }
     }
     
     private void enableEditMode() {
+        binding.etStationId.setEnabled(true);
         binding.etReservationDate.setEnabled(true);
         binding.btnGetSlots.setEnabled(true);
         binding.etSelectedSlot.setEnabled(true);
         binding.btnCreateBooking.setText("Update Reservation");
         binding.btnCreateBooking.setVisibility(View.VISIBLE);
         binding.btnUpdateBooking.setVisibility(View.GONE);
+        
+        // Clear current slot selection to force user to select new slot
+        selectedSlot = null;
+        binding.layoutSelectedSlot.setVisibility(View.GONE);
     }
     
     private void disableEditMode() {
+        binding.etStationId.setEnabled(false);
         binding.etReservationDate.setEnabled(false);
         binding.btnGetSlots.setEnabled(false);
         binding.etSelectedSlot.setEnabled(false);

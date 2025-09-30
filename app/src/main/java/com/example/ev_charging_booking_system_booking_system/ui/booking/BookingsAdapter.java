@@ -16,6 +16,7 @@ import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -182,9 +183,23 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
         
         private String formatDateTime(String isoDateTime) {
             try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                SimpleDateFormat inputFormatWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                SimpleDateFormat inputFormatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                SimpleDateFormat inputFormatNoZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
                 SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' HH:mm", Locale.getDefault());
-                return outputFormat.format(inputFormat.parse(isoDateTime));
+                
+                Date parsedDate = null;
+                try {
+                    parsedDate = inputFormatWithMillis.parse(isoDateTime);
+                } catch (Exception e1) {
+                    try {
+                        parsedDate = inputFormatWithoutMillis.parse(isoDateTime);
+                    } catch (Exception e2) {
+                        parsedDate = inputFormatNoZ.parse(isoDateTime);
+                    }
+                }
+                
+                return outputFormat.format(parsedDate);
             } catch (Exception e) {
                 return isoDateTime; // Return original if parsing fails
             }
@@ -192,8 +207,22 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
         
         private boolean canStillUpdate(String reservationDateTime) {
             try {
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                long reservationTime = format.parse(reservationDateTime).getTime();
+                SimpleDateFormat formatWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                SimpleDateFormat formatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                SimpleDateFormat formatNoZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                
+                Date parsedDate = null;
+                try {
+                    parsedDate = formatWithMillis.parse(reservationDateTime);
+                } catch (Exception e1) {
+                    try {
+                        parsedDate = formatWithoutMillis.parse(reservationDateTime);
+                    } catch (Exception e2) {
+                        parsedDate = formatNoZ.parse(reservationDateTime);
+                    }
+                }
+                
+                long reservationTime = parsedDate.getTime();
                 long currentTime = System.currentTimeMillis();
                 long timeDiff = reservationTime - currentTime;
                 

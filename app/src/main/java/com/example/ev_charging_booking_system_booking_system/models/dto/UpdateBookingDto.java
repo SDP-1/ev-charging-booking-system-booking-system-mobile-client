@@ -2,13 +2,13 @@ package com.example.ev_charging_booking_system_booking_system.models.dto;
 
 public class UpdateBookingDto {
     private String stationId;          // Nullable
-    private String reservationDateTime; // Nullable, ISO format
+    private String slotId;             // Nullable - the new slot to book
 
     public UpdateBookingDto() {}
 
-    public UpdateBookingDto(String stationId, String reservationDateTime) {
+    public UpdateBookingDto(String stationId, String slotId) {
         this.stationId = stationId;
-        this.reservationDateTime = reservationDateTime;
+        this.slotId = slotId;
     }
 
     public String getStationId() {
@@ -19,11 +19,11 @@ public class UpdateBookingDto {
         this.stationId = stationId;
     }
 
-    public String getReservationDateTime() {
-        return reservationDateTime;
+    public String getSlotId() {
+        return slotId;
     }
 
-    public void setReservationDateTime(String reservationDateTime) {
-        this.reservationDateTime = reservationDateTime;
+    public void setSlotId(String slotId) {
+        this.slotId = slotId;
     }
 }
