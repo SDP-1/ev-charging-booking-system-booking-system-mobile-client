@@ -219,4 +219,54 @@ public class BookingRepository {
             }
         });
     }
+
+    // Confirm booking (Station Operator)
+    public void confirmBooking(String bookingId, BookingCallback<String> callback) {
+        Call<BookingResponseDto> call = apiService.confirmBooking(bookingId);
+        call.enqueue(new Callback<BookingResponseDto>() {
+            @Override
+            public void onResponse(Call<BookingResponseDto> call, Response<BookingResponseDto> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Booking confirmed successfully: " + bookingId);
+                    callback.onSuccess("Booking confirmed successfully");
+                } else {
+                    String error = "Failed to confirm booking. Code: " + response.code();
+                    Log.e(TAG, error);
+                    callback.onError(error);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BookingResponseDto> call, Throwable t) {
+                String error = "Network error: " + t.getMessage();
+                Log.e(TAG, error, t);
+                callback.onError(error);
+            }
+        });
+    }
+
+    // Complete booking (Station Operator)
+    public void completeBooking(String bookingId, BookingCallback<String> callback) {
+        Call<BookingResponseDto> call = apiService.completeBooking(bookingId);
+        call.enqueue(new Callback<BookingResponseDto>() {
+            @Override
+            public void onResponse(Call<BookingResponseDto> call, Response<BookingResponseDto> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Booking completed successfully: " + bookingId);
+                    callback.onSuccess("Booking completed successfully");
+                } else {
+                    String error = "Failed to complete booking. Code: " + response.code();
+                    Log.e(TAG, error);
+                    callback.onError(error);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<BookingResponseDto> call, Throwable t) {
+                String error = "Network error: " + t.getMessage();
+                Log.e(TAG, error, t);
+                callback.onError(error);
+            }
+        });
+    }
 }
