@@ -26,7 +26,7 @@
     <activity
         android:id="@+id/nav_dashboard"
         android:name="com.example.ev_charging_booking_system_booking_system.ui.home.Dashboard"
-        android:label="@string/string_dashbord"
+        android:label="@string/string_dashboard"
         tools:layout="@layout/activity_dashboard" />
 
     <activity

@@ -73,6 +73,20 @@
             android:theme="@style/Theme.Evchargingbookingsystembookingsystem"
             android:parentActivityName=".ui.booking.MyBookingsActivity" />
 
+        <!-- Maps Activity -->
+        <activity
+            android:name=".ui.maps.NearbyStationsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Evchargingbookingsystembookingsystem"
+            android:parentActivityName=".ui.home.Dashboard" />
+
+        <!-- Station Operator QR Scanner Activity -->
+        <activity
+            android:name=".ui.operator.QRScannerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Evchargingbookingsystembookingsystem"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false"

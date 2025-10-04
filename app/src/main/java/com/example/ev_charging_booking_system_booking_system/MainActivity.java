@@ -54,9 +54,14 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         
-        // Handle profile navigation separately (since it's an activity, not fragment)
+        // Handle activities navigation separately (since they're activities, not fragments)
         navigationView.setNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_profile) {
+            if (item.getItemId() == R.id.nav_dashboard) {
+                Intent intent = new Intent(MainActivity.this, com.example.ev_charging_booking_system_booking_system.ui.home.Dashboard.class);
+                startActivity(intent);
+                binding.drawerLayout.closeDrawers();
+                return true;
+            } else if (item.getItemId() == R.id.nav_profile) {
                 Intent intent = new Intent(MainActivity.this, com.example.ev_charging_booking_system_booking_system.ui.profile.UserProfileActivity.class);
                 startActivity(intent);
                 binding.drawerLayout.closeDrawers();

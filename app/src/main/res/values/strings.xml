@@ -11,5 +11,8 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="title_activity_signup">Signup</string>
-    <string name="string_dashbord">Dashbord</string>
+    <string name="string_dashboard">Dashboard</string>
+    
+    <!-- ZXing barcode scanner strings -->
+    <string name="zxing_msg_default_status">Place a barcode inside the viewfinder rectangle to scan it.</string>
 </resources>
