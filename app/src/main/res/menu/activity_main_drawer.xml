@@ -5,9 +5,9 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_dashord"
+            android:id="@+id/nav_dashboard"
             android:icon="@drawable/ic_launcher_foreground"
-            android:title="@string/string_dashbord" />
+            android:title="@string/string_dashboard" />
         <item
             android:id="@+id/nav_profile"
             android:icon="@android:drawable/ic_menu_myplaces"
