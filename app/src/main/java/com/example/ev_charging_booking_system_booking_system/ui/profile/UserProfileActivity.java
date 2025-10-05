@@ -17,6 +17,7 @@ import com.example.ev_charging_booking_system_booking_system.database.repositori
 import com.example.ev_charging_booking_system_booking_system.database.models.LocalUser;
 import com.example.ev_charging_booking_system_booking_system.utils.TokenManager;
 import com.google.android.material.textfield.TextInputEditText;
+import com.example.ev_charging_booking_system_booking_system.utils.Constants;
 
 public class UserProfileActivity extends AppCompatActivity {
     
@@ -92,7 +93,10 @@ public class UserProfileActivity extends AppCompatActivity {
         etNic.setText(currentUser.getNic());
         etEmail.setText(currentUser.getEmail());
         etPhone.setText(currentUser.getPhone());
-        tvRole.setText(currentUser.getRole());
+        
+        // Display role with proper formatting
+        String roleDisplayText = getRoleDisplayText(currentUser.getRole());
+        tvRole.setText(roleDisplayText);
         
         // Set account status
         if (currentUser.isActive()) {
@@ -105,7 +109,15 @@ public class UserProfileActivity extends AppCompatActivity {
         
         // Make username and NIC read-only (primary identifiers)
         etUsername.setEnabled(false);
-        etNic.setEnabled(false);
+        
+        // For Station Operators, NIC might not be required
+        if (Constants.ROLE_STATION_OPERATOR.equals(currentUser.getRole())) {
+            etNic.setEnabled(false);
+            etNic.setHint("NIC (Not Required for Station Operators)");
+        } else {
+            etNic.setEnabled(false);
+            etNic.setHint("NIC (Required for EV Owners)");
+        }
         
         // Disable deactivation button if already inactive
         btnDeactivateAccount.setEnabled(currentUser.isActive());
@@ -203,6 +215,17 @@ public class UserProfileActivity extends AppCompatActivity {
         btnDeactivateAccount.setEnabled(!show && currentUser != null && currentUser.isActive());
         etEmail.setEnabled(!show);
         etPhone.setEnabled(!show);
+    }
+
+    private String getRoleDisplayText(String role) {
+        if (Constants.ROLE_STATION_OPERATOR.equals(role)) {
+            return "Station Operator";
+        } else if (Constants.ROLE_EV_OWNER.equals(role)) {
+            return "EV Owner";
+        } else if (Constants.ROLE_BACKOFFICE.equals(role)) {
+            return "Back Office";
+        }
+        return role; // Fallback to original role string
     }
 
     @Override

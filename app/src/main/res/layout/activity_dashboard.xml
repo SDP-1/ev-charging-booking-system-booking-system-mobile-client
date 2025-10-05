@@ -16,71 +16,64 @@
         android:textColor="@android:color/black"
         android:layout_marginBottom="20dp" />
 
+    <!-- EV Owner Statistics (Hidden for Station Operators) -->
     <LinearLayout
+        android:id="@+id/cardPendingReservations"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_height="100dp"
+        android:orientation="vertical"
+        android:background="@drawable/white_box"
+        android:padding="16dp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:visibility="visible">
 
-        <LinearLayout
-            android:id="@+id/cardPendingReservations"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/white_box"
-            android:padding="16dp"
-            android:gravity="center"
-            android:layout_marginEnd="8dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pending Reservations"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_orange_dark" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pending"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/holo_orange_dark" />
+        <TextView
+            android:id="@+id/tvPendingCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_orange_dark" />
 
-            <TextView
-                android:id="@+id/tvPendingCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/holo_orange_dark" />
+    </LinearLayout>
 
-        </LinearLayout>
+    <LinearLayout
+        android:id="@+id/cardApprovedReservations"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="vertical"
+        android:background="@drawable/white_box"
+        android:padding="16dp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:visibility="visible">
 
-        <LinearLayout
-            android:id="@+id/cardApprovedReservations"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="@drawable/white_box"
-            android:padding="16dp"
-            android:gravity="center"
-            android:layout_marginStart="8dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Approved Reservations"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Approved"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/holo_green_dark" />
-
-            <TextView
-                android:id="@+id/tvApprovedCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/holo_green_dark" />
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tvApprovedCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark" />
 
     </LinearLayout>
 
@@ -94,6 +87,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="12dp" />
 
+    <!-- Station Management / Finding -->
     <Button
         android:id="@+id/btnViewNearbyStations"
         android:layout_width="match_parent"
@@ -103,6 +97,7 @@
         android:textColor="@android:color/white"
         android:layout_marginBottom="8dp" />
 
+    <!-- EV Owner Features -->
     <Button
         android:id="@+id/btnCreateBooking"
         android:layout_width="match_parent"
@@ -121,12 +116,14 @@
         android:textColor="@android:color/white"
         android:layout_marginBottom="8dp" />
 
+    <!-- Station Operator Features -->
     <Button
         android:id="@+id/btnQRScanner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="QR Code Scanner (Operator)"
         android:background="@drawable/lavender_round"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        android:visibility="gone" />
 
 </LinearLayout>
