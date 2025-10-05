@@ -24,6 +24,46 @@
             android:layout_marginBottom="32dp"
             android:layout_marginTop="16dp" />
 
+        <!-- Role Selection -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Your Role"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="12dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioEVOwner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="EV Owner"
+                android:textSize="16sp"
+                android:checked="true"
+                android:layout_marginEnd="8dp"
+                android:gravity="center" />
+
+            <RadioButton
+                android:id="@+id/radioStationOperator"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Station Operator"
+                android:textSize="16sp"
+                android:layout_marginStart="8dp"
+                android:gravity="center" />
+
+        </RadioGroup>
+
         <!-- Username -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -76,37 +116,6 @@
                 android:maxLines="1" />
 
         </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Role Selection (Same as Login Page) -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Role:"
-            android:layout_marginBottom="8dp" />
-
-        <RadioGroup
-            android:id="@+id/rgRole"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="24dp">
-
-            <RadioButton
-                android:id="@+id/rbEVOwner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="EV Owner"
-                android:checked="true" />
-
-            <RadioButton
-                android:id="@+id/rbStationOperator"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Station Operator" />
-
-        </RadioGroup>
 
         <!-- NIC (Required for EV Owners) -->
         <com.google.android.material.textfield.TextInputLayout
