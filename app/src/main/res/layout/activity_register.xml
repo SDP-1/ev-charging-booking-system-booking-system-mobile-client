@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Register as EV Owner"
+            android:text="Create Account"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/purple_700"
@@ -77,8 +77,40 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Role Selection (Same as Login Page) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Role:"
+            android:layout_marginBottom="8dp" />
+
+        <RadioGroup
+            android:id="@+id/rgRole"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/rbEVOwner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="EV Owner"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/rbStationOperator"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Station Operator" />
+
+        </RadioGroup>
+
         <!-- NIC (Required for EV Owners) -->
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutNic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"

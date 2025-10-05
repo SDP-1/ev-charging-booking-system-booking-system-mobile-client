@@ -6,6 +6,8 @@ import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ import com.example.ev_charging_booking_system_booking_system.database.repositori
 import com.example.ev_charging_booking_system_booking_system.database.models.LocalUser;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -28,8 +31,11 @@ import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
     
+    private RadioGroup radioGroupRole;
+    private RadioButton radioEVOwner, radioStationOperator;
     private TextInputEditText etUsername, etPassword, etConfirmPassword;
     private TextInputEditText etNic, etName, etPhone, etEmail;
+    private TextInputLayout layoutNic;
     private MaterialButton btnRegister;
     private TextView tvLoginLink;
     private ProgressBar progressBar;
@@ -50,6 +56,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        radioGroupRole = findViewById(R.id.radioGroupRole);
+        radioEVOwner = findViewById(R.id.radioEVOwner);
+        radioStationOperator = findViewById(R.id.radioStationOperator);
+        
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
@@ -57,6 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
         etName = findViewById(R.id.etName);
         etPhone = findViewById(R.id.etPhone);
         etEmail = findViewById(R.id.etEmail);
+        layoutNic = findViewById(R.id.layoutNic);
         btnRegister = findViewById(R.id.btnRegister);
         tvLoginLink = findViewById(R.id.tvLoginLink);
         progressBar = findViewById(R.id.progressBar);
@@ -69,6 +80,19 @@ public class RegisterActivity extends AppCompatActivity {
             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
+        });
+
+        // Handle role selection changes
+        radioGroupRole.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioEVOwner) {
+                // Show NIC field for EV Owners
+                layoutNic.setVisibility(View.VISIBLE);
+                layoutNic.setHint("NIC Number (Required for EV Owners)");
+            } else if (checkedId == R.id.radioStationOperator) {
+                // Hide NIC field for Station Operators
+                layoutNic.setVisibility(View.GONE);
+                etNic.setText(""); // Clear NIC field
+            }
         });
     }
 
@@ -85,17 +109,28 @@ public class RegisterActivity extends AppCompatActivity {
         String name = etName.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
+        String selectedRole = getSelectedRole();
 
         // Validate input
-        if (!validateInput(username, password, confirmPassword, nic, name, phone, email)) {
+        if (!validateInput(username, password, confirmPassword, nic, name, phone, email, selectedRole)) {
             return;
         }
 
-        performRegistration(username, password, nic, name, phone, email);
+        performRegistration(username, password, selectedRole, nic, name, phone, email);
+    }
+
+    private String getSelectedRole() {
+        int selectedId = radioGroupRole.getCheckedRadioButtonId();
+        if (selectedId == R.id.radioEVOwner) {
+            return "EVOwner";
+        } else if (selectedId == R.id.radioStationOperator) {
+            return "StationOperator";
+        }
+        return "EVOwner"; // Default to EVOwner
     }
 
     private boolean validateInput(String username, String password, String confirmPassword, 
-                                String nic, String name, String phone, String email) {
+                                String nic, String name, String phone, String email, String role) {
         
         // Username validation
         if (TextUtils.isEmpty(username)) {
@@ -130,17 +165,19 @@ public class RegisterActivity extends AppCompatActivity {
             return false;
         }
 
-        // NIC validation (Sri Lankan NIC format)
-        if (TextUtils.isEmpty(nic)) {
-            etNic.setError("NIC is required for EV Owners");
-            etNic.requestFocus();
-            return false;
-        }
-        
-        if (!isValidNIC(nic)) {
-            etNic.setError("Invalid NIC format (e.g., 123456789V or 123456789012)");
-            etNic.requestFocus();
-            return false;
+        // NIC validation (Required only for EV Owners)
+        if ("EVOwner".equals(role)) {
+            if (TextUtils.isEmpty(nic)) {
+                etNic.setError("NIC is required for EV Owners");
+                etNic.requestFocus();
+                return false;
+            }
+            
+            if (!isValidNIC(nic)) {
+                etNic.setError("Invalid NIC format (e.g., 123456789V or 123456789012)");
+                etNic.requestFocus();
+                return false;
+            }
         }
 
         // Name validation
@@ -189,12 +226,12 @@ public class RegisterActivity extends AppCompatActivity {
         return phone.matches("^0[0-9]{9}$");
     }
 
-    private void performRegistration(String username, String password, String nic, 
+    private void performRegistration(String username, String password, String role, String nic, 
                                    String name, String phone, String email) {
         showLoading(true);
 
-        // Create user object for registration (EVOwner role)
-        User user = new User(username, password, "EVOwner", nic);
+        // Create user object for registration
+        User user = new User(username, password, role, nic);
         user.setId("000000000000000000000000"); // Set a valid MongoDB ObjectId format placeholder
         user.setName(name);
         user.setPhone(phone);
@@ -214,8 +251,9 @@ public class RegisterActivity extends AppCompatActivity {
                         saveUserToLocalDatabase(user, registerResponse);
                     }
                     
+                    String roleText = "EVOwner".equals(role) ? "EV Owner" : "Station Operator";
                     Toast.makeText(RegisterActivity.this, 
-                        "Registration successful! Please login to continue.", 
+                        "Registration successful as " + roleText + "! Please login to continue.", 
                         Toast.LENGTH_LONG).show();
                     
                     // Navigate back to login
@@ -258,6 +296,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         btnRegister.setEnabled(!show);
+        radioEVOwner.setEnabled(!show);
+        radioStationOperator.setEnabled(!show);
         etUsername.setEnabled(!show);
         etPassword.setEnabled(!show);
         etConfirmPassword.setEnabled(!show);
