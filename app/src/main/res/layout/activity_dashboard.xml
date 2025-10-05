@@ -77,6 +77,37 @@
 
     </LinearLayout>
 
+    <!-- Station Operator Statistics (Hidden for EV Owners) -->
+    <LinearLayout
+        android:id="@+id/cardDoneServices"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="vertical"
+        android:background="@drawable/white_box"
+        android:padding="16dp"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Done Services"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <TextView
+            android:id="@+id/tvDoneServicesCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_blue_dark" />
+
+    </LinearLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

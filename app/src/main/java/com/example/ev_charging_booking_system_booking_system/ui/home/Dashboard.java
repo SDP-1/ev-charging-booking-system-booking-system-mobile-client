@@ -79,6 +79,9 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void configureForStationOperator() {
+        // Show Done Services card for Station Operators
+        binding.cardDoneServices.setVisibility(View.VISIBLE);
+        
         // Show QR Scanner prominently
         binding.btnQRScanner.setVisibility(View.VISIBLE);
         binding.btnQRScanner.setText("QR Code Scanner");
@@ -101,7 +104,8 @@ public class Dashboard extends AppCompatActivity {
         binding.btnCreateBooking.setVisibility(View.VISIBLE);
         binding.btnViewMyBookings.setVisibility(View.VISIBLE);
         
-        // Hide QR Scanner for EV Owners
+        // Hide Station Operator features
+        binding.cardDoneServices.setVisibility(View.GONE);
         binding.btnQRScanner.setVisibility(View.GONE);
         
         // Show station finder
@@ -136,6 +140,14 @@ public class Dashboard extends AppCompatActivity {
                 Intent intent = new Intent(Dashboard.this, MyBookingsActivity.class);
                 intent.putExtra("filter_status", Constants.STATUS_APPROVED);
                 startActivity(intent);
+            }
+        });
+
+        // Done Services card click (Station Operators only)
+        binding.cardDoneServices.setOnClickListener(v -> {
+            if (Constants.ROLE_STATION_OPERATOR.equals(userRole)) {
+                // TODO: Navigate to completed services list
+                Toast.makeText(this, "View completed services", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -182,8 +194,8 @@ public class Dashboard extends AppCompatActivity {
     private void loadDashboardData() {
         showProgress(true);
 
-        // Only load booking data for EV Owners
         if (Constants.ROLE_EV_OWNER.equals(userRole)) {
+            // Load booking data for EV Owners
             bookingRepository.getMyBookings(new BookingRepository.BookingCallback<List<BookingResponseDto>>() {
                 @Override
                 public void onSuccess(List<BookingResponseDto> bookings) {
@@ -205,10 +217,38 @@ public class Dashboard extends AppCompatActivity {
                     });
                 }
             });
+        } else if (Constants.ROLE_STATION_OPERATOR.equals(userRole)) {
+            // Load done services data for Station Operators
+            loadDoneServicesData();
         } else {
-            // For Station Operators, no booking data needed
+            // For other roles, no specific data needed
             showProgress(false);
         }
+    }
+
+    private void loadDoneServicesData() {
+        // TODO: Implement API call to get completed services for station operator
+        // For now, set a default value
+        binding.tvDoneServicesCount.setText("0");
+        showProgress(false);
+        
+        // Example of how this would work:
+        // stationServiceRepository.getCompletedServices(new StationServiceCallback<List<ServiceResponseDto>>() {
+        //     @Override
+        //     public void onSuccess(List<ServiceResponseDto> services) {
+        //         runOnUiThread(() -> {
+        //             binding.tvDoneServicesCount.setText(String.valueOf(services.size()));
+        //             showProgress(false);
+        //         });
+        //     }
+        //     @Override
+        //     public void onError(String error) {
+        //         runOnUiThread(() -> {
+        //             showProgress(false);
+        //             Toast.makeText(Dashboard.this, "Failed to load services data: " + error, Toast.LENGTH_SHORT).show();
+        //         });
+        //     }
+        // });
     }
 
     private void updateDashboardStats(List<BookingResponseDto> bookings) {
