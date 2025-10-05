@@ -58,7 +58,7 @@ public class Dashboard extends AppCompatActivity {
         // Set greeting with username and role
         String username = sharedPreferences.getString(Constants.KEY_USERNAME, "User");
         String roleText = getRoleDisplayText(userRole);
-        String greeting = getGreeting() + ", " + username + " (" + roleText + ")!";
+        String greeting = getGreeting() + ", " + username + "!";
         binding.tvGreeting.setText(greeting);
         
         // Configure UI based on user role

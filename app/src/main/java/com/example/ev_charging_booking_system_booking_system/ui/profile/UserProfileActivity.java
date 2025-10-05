@@ -19,6 +19,8 @@ import com.example.ev_charging_booking_system_booking_system.utils.TokenManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.example.ev_charging_booking_system_booking_system.utils.Constants;
 
+import java.util.List;
+
 public class UserProfileActivity extends AppCompatActivity {
     
     private TextInputEditText etUsername, etNic, etEmail, etPhone;
@@ -65,8 +67,13 @@ public class UserProfileActivity extends AppCompatActivity {
     private void loadUserProfile() {
         showLoading(true);
         
+        // Debug database contents
+        debugDatabaseContents();
+        
         // Get current user ID from token manager
         String currentUserId = tokenManager.getUserId();
+        
+        android.util.Log.d("UserProfileActivity", "Current User ID: " + currentUserId);
         
         if (currentUserId == null) {
             Toast.makeText(this, "User session expired. Please login again.", Toast.LENGTH_LONG).show();
@@ -74,18 +81,104 @@ public class UserProfileActivity extends AppCompatActivity {
             return;
         }
         
-        // Load user from local database
+        // Try multiple methods to get user data
         currentUser = userRepository.getUserById(currentUserId);
         
+        // If not found by ID, try by username
         if (currentUser == null) {
-            Toast.makeText(this, "User profile not found.", Toast.LENGTH_LONG).show();
-            finish();
-            return;
+            String username = tokenManager.getUsername();
+            android.util.Log.d("UserProfileActivity", "Trying to get user by username: " + username);
+            currentUser = userRepository.getUserByUsername(username);
         }
         
-        // Populate UI with user data
-        populateUserData();
-        showLoading(false);
+        // If still not found, try by NIC (for EV Owners)
+        if (currentUser == null) {
+            String nic = tokenManager.getUserNic();
+            android.util.Log.d("UserProfileActivity", "Trying to get user by NIC: " + nic);
+            if (nic != null && !nic.isEmpty()) {
+                currentUser = userRepository.getUserByNic(nic);
+            }
+        }
+        
+        if (currentUser == null) {
+            android.util.Log.e("UserProfileActivity", "User not found in local database");
+            
+            // Create user profile from token data
+            createUserProfileFromToken();
+        } else {
+            android.util.Log.d("UserProfileActivity", "User found: " + currentUser.getUsername());
+            // Populate UI with user data
+            populateUserData();
+            showLoading(false);
+        }
+    }
+    
+    private void createUserProfileFromToken() {
+        android.util.Log.d("UserProfileActivity", "Creating user profile from token data");
+        
+        try {
+            // Create a user profile from available token data
+            currentUser = new LocalUser();
+            currentUser.setUserId(tokenManager.getUserId());
+            currentUser.setUsername(tokenManager.getUsername());
+            currentUser.setNic(tokenManager.getUserNic());
+            currentUser.setRole(tokenManager.getUserRole());
+            currentUser.setActive(true);
+            currentUser.setCreatedDate(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date()));
+            
+            // Set default values for missing fields to avoid NULL constraint violations
+            if (currentUser.getEmail() == null || currentUser.getEmail().isEmpty()) {
+                currentUser.setEmail(""); // Will be updated when user provides it
+            }
+            if (currentUser.getPhone() == null || currentUser.getPhone().isEmpty()) {
+                currentUser.setPhone(""); // Will be updated when user provides it
+            }
+            
+            // Ensure username is not null (required by database)
+            if (currentUser.getUsername() == null || currentUser.getUsername().isEmpty()) {
+                currentUser.setUsername("user_" + System.currentTimeMillis()); // Generate unique username
+            }
+            
+            // Ensure NIC is not null (required by database)
+            if (currentUser.getNic() == null || currentUser.getNic().isEmpty()) {
+                // For Station Operators, NIC might not be required, but database needs a value
+                currentUser.setNic("STATION_" + System.currentTimeMillis()); // Generate unique NIC
+            }
+            
+            // Ensure role is not null (required by database)
+            if (currentUser.getRole() == null || currentUser.getRole().isEmpty()) {
+                currentUser.setRole("EVOwner"); // Default role
+            }
+            
+            android.util.Log.d("UserProfileActivity", "User data prepared - Username: " + currentUser.getUsername() + 
+                             ", NIC: " + currentUser.getNic() + 
+                             ", Role: " + currentUser.getRole() + 
+                             ", Email: " + currentUser.getEmail() + 
+                             ", Phone: " + currentUser.getPhone());
+            
+            // Save this profile to database
+            boolean saved = userRepository.insertOrUpdateUser(currentUser);
+            
+            if (saved) {
+                android.util.Log.d("UserProfileActivity", "User profile created from token data successfully");
+                populateUserData();
+                showLoading(false);
+                Toast.makeText(this, "Profile created from login data. Please update your details.", Toast.LENGTH_SHORT).show();
+            } else {
+                android.util.Log.e("UserProfileActivity", "Failed to save user profile to database");
+                
+                // Try to get more detailed error information
+                debugDatabaseInsertError();
+                
+                Toast.makeText(this, "Failed to create user profile. Please contact support.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+            
+        } catch (Exception e) {
+            android.util.Log.e("UserProfileActivity", "Error creating user profile from token: " + e.getMessage());
+            Toast.makeText(this, "Error creating user profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     private void populateUserData() {
@@ -232,5 +325,66 @@ public class UserProfileActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    // Add this method to debug database contents
+    private void debugDatabaseContents() {
+        try {
+            // Get all users from database
+            List<LocalUser> allUsers = userRepository.getAllUsers();
+            
+            android.util.Log.d("UserProfileActivity", "Total users in database: " + allUsers.size());
+            
+            for (LocalUser user : allUsers) {
+                android.util.Log.d("UserProfileActivity", "User in DB - ID: " + user.getUserId() + 
+                                 ", Username: " + user.getUsername() + 
+                                 ", Role: " + user.getRole() + 
+                                 ", NIC: " + user.getNic());
+            }
+            
+            // Log current token data
+            android.util.Log.d("UserProfileActivity", "Token Data - ID: " + tokenManager.getUserId() + 
+                             ", Username: " + tokenManager.getUsername() + 
+                             ", Role: " + tokenManager.getUserRole() + 
+                             ", NIC: " + tokenManager.getUserNic());
+            
+        } catch (Exception e) {
+            android.util.Log.e("UserProfileActivity", "Error debugging database: " + e.getMessage());
+        }
+    }
+
+    private void debugDatabaseInsertError() {
+        try {
+            android.util.Log.e("UserProfileActivity", "=== DATABASE INSERT ERROR DEBUG ===");
+            android.util.Log.e("UserProfileActivity", "User ID: " + currentUser.getUserId());
+            android.util.Log.e("UserProfileActivity", "Username: " + currentUser.getUsername());
+            android.util.Log.e("UserProfileActivity", "NIC: " + currentUser.getNic());
+            android.util.Log.e("UserProfileActivity", "Role: " + currentUser.getRole());
+            android.util.Log.e("UserProfileActivity", "Email: " + currentUser.getEmail());
+            android.util.Log.e("UserProfileActivity", "Phone: " + currentUser.getPhone());
+            android.util.Log.e("UserProfileActivity", "Active: " + currentUser.isActive());
+            android.util.Log.e("UserProfileActivity", "Created Date: " + currentUser.getCreatedDate());
+            
+            // Check if user already exists
+            LocalUser existingUser = userRepository.getUserById(currentUser.getUserId());
+            if (existingUser != null) {
+                android.util.Log.e("UserProfileActivity", "User already exists in database!");
+            }
+            
+            // Check if username already exists
+            LocalUser existingByUsername = userRepository.getUserByUsername(currentUser.getUsername());
+            if (existingByUsername != null) {
+                android.util.Log.e("UserProfileActivity", "Username already exists in database!");
+            }
+            
+            // Check if NIC already exists
+            LocalUser existingByNIC = userRepository.getUserByNic(currentUser.getNic());
+            if (existingByNIC != null) {
+                android.util.Log.e("UserProfileActivity", "NIC already exists in database!");
+            }
+            
+        } catch (Exception e) {
+            android.util.Log.e("UserProfileActivity", "Error in debug: " + e.getMessage());
+        }
     }
 }
