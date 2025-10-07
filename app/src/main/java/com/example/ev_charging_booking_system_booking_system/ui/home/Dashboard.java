@@ -19,6 +19,8 @@ import com.example.ev_charging_booking_system_booking_system.R;
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityDashboardBinding;
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
 import com.example.ev_charging_booking_system_booking_system.repository.BookingRepository;
+import com.example.ev_charging_booking_system_booking_system.repository.ChargingStationRepository;
+import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
 import com.example.ev_charging_booking_system_booking_system.ui.booking.BookingActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.booking.MyBookingsActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.maps.NearbyStationsActivity;
@@ -33,6 +35,7 @@ public class Dashboard extends AppCompatActivity {
 
     private ActivityDashboardBinding binding;
     private BookingRepository bookingRepository;
+    private ChargingStationRepository chargingStationRepository;
     private SharedPreferences sharedPreferences;
     private TokenManager tokenManager;
     private String userRole;
@@ -52,6 +55,7 @@ public class Dashboard extends AppCompatActivity {
     private void setupViews() {
         // Initialize repositories and managers
         bookingRepository = new BookingRepository(this);
+        chargingStationRepository = new ChargingStationRepository(this);
         sharedPreferences = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE);
         tokenManager = new TokenManager(this);
         
@@ -209,8 +213,8 @@ public class Dashboard extends AppCompatActivity {
             mapView.getController().setZoom(12.0);
             mapView.getController().setCenter(new GeoPoint(6.9271, 79.8612)); // Colombo, Sri Lanka
             
-            // Add some sample charging station markers
-            addSampleStations(mapView);
+            // Load and display real charging station markers
+            loadChargingStations(mapView);
             
             // Setup map controls
             binding.fabMyLocation.setOnClickListener(v -> {
@@ -230,7 +234,13 @@ public class Dashboard extends AppCompatActivity {
             // Setup map action buttons
             binding.btnRefreshStations.setOnClickListener(v -> {
                 Toast.makeText(this, "Refreshing nearby stations...", Toast.LENGTH_SHORT).show();
-                // Add logic to refresh station data here
+                loadChargingStations(mapView);
+            });
+            
+            // Add long press on refresh button for API testing
+            binding.btnRefreshStations.setOnLongClickListener(v -> {
+                testApiConnection();
+                return true;
             });
             
             binding.btnViewAllStations.setOnClickListener(v -> {
@@ -238,16 +248,94 @@ public class Dashboard extends AppCompatActivity {
                 startActivity(intent);
             });
             
-            // Update station count
-            binding.tvStationCount.setText("3 nearby stations");
-            
         } catch (Exception e) {
             Toast.makeText(this, "Map initialization failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
     
+    private void loadChargingStations(MapView mapView) {
+        chargingStationRepository.getAllStations(new ChargingStationRepository.ChargingStationCallback<List<ChargingStationDto>>() {
+            @Override
+            public void onSuccess(List<ChargingStationDto> stations) {
+                runOnUiThread(() -> {
+                    if (stations.isEmpty()) {
+                        Toast.makeText(Dashboard.this, "No charging stations found", Toast.LENGTH_SHORT).show();
+                        addSampleStations(mapView);
+                    } else {
+                        addChargingStationMarkers(mapView, stations);
+                        updateStationCount(stations.size());
+                        Toast.makeText(Dashboard.this, "Loaded " + stations.size() + " charging stations", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(Dashboard.this, "Failed to load charging stations: " + error, Toast.LENGTH_LONG).show();
+                    // Fallback to sample data if API fails
+                    addSampleStations(mapView);
+                });
+            }
+        });
+    }
+
+    private void addChargingStationMarkers(MapView mapView, List<ChargingStationDto> stations) {
+        // Clear existing markers
+        mapView.getOverlays().clear();
+        
+        for (ChargingStationDto station : stations) {
+            if (station.getLatitude() != 0.0 && station.getLongitude() != 0.0) {
+                Marker marker = new Marker(mapView);
+                marker.setPosition(new GeoPoint(station.getLatitude(), station.getLongitude()));
+                marker.setTitle(station.getName());
+                
+                String snippet = station.getLocation();
+                if (station.getType() != null && !station.getType().isEmpty()) {
+                    snippet += " - " + station.getType();
+                }
+                snippet += " (" + (station.isActive() ? "Active" : "Inactive") + ")";
+                marker.setSnippet(snippet);
+                
+                // Set different icons based on station status
+                if (station.isActive()) {
+                    marker.setIcon(getResources().getDrawable(R.drawable.ic_location, null));
+                } else {
+                    marker.setIcon(getResources().getDrawable(R.drawable.ic_location, null));
+                }
+                
+                mapView.getOverlays().add(marker);
+            }
+        }
+        
+        // Refresh the map
+        mapView.invalidate();
+    }
+
+    private void updateStationCount(int count) {
+        binding.tvStationCount.setText(count + " stations");
+    }
+
+    private void testApiConnection() {
+        chargingStationRepository.testApiConnection(new ChargingStationRepository.ChargingStationCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                runOnUiThread(() -> {
+                    Toast.makeText(Dashboard.this, "API Test: " + result, Toast.LENGTH_LONG).show();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(Dashboard.this, "API Test Error: " + error, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
+    }
+
     private void addSampleStations(MapView mapView) {
-        // Add sample charging stations
+        // Add sample charging stations as fallback
         Marker station1 = new Marker(mapView);
         station1.setPosition(new GeoPoint(6.9271, 79.8612));
         station1.setTitle("Colombo Central Station");
@@ -268,6 +356,7 @@ public class Dashboard extends AppCompatActivity {
         
         // Refresh the map
         mapView.invalidate();
+        updateStationCount(3);
     }
 
     private void loadDashboardData() {
@@ -390,5 +479,9 @@ public class Dashboard extends AppCompatActivity {
         super.onDestroy();
         // Clean up map resources
         binding.mapView.onDetach();
+        // Clean up repository
+        if (chargingStationRepository != null) {
+            chargingStationRepository.shutdown();
+        }
     }
 }

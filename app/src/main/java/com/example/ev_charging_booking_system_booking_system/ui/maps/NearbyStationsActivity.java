@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat;
 import com.example.ev_charging_booking_system_booking_system.R;
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityNearbyStationsBinding;
 import com.example.ev_charging_booking_system_booking_system.utils.Constants;
+import com.example.ev_charging_booking_system_booking_system.repository.ChargingStationRepository;
+import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,9 +35,10 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
     private MapView mapView;
     private GoogleMap googleMap;
     private FusedLocationProviderClient fusedLocationClient;
+    private ChargingStationRepository chargingStationRepository;
     
-    // Sample charging station data - In real app, this would come from API
-    private final List<ChargingStationLocation> sampleStations = new ArrayList<>();
+    // Real charging station data from API
+    private List<ChargingStationDto> chargingStations = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,7 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
 
         setupViews();
         initializeMap(savedInstanceState);
-        setupSampleData();
+        loadChargingStations();
     }
 
     private void setupViews() {
@@ -55,6 +58,7 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        chargingStationRepository = new ChargingStationRepository(this);
     }
 
     private void initializeMap(Bundle savedInstanceState) {
@@ -63,13 +67,41 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
         mapView.getMapAsync(this);
     }
 
+    private void loadChargingStations() {
+        chargingStationRepository.getAllStations(new ChargingStationRepository.ChargingStationCallback<List<ChargingStationDto>>() {
+            @Override
+            public void onSuccess(List<ChargingStationDto> stations) {
+                runOnUiThread(() -> {
+                    chargingStations = stations;
+                    if (googleMap != null) {
+                        addChargingStationMarkers();
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(NearbyStationsActivity.this, "Failed to load charging stations: " + error, Toast.LENGTH_LONG).show();
+                    // Fallback to sample data
+                    setupSampleData();
+                });
+            }
+        });
+    }
+
     private void setupSampleData() {
-        // Sample charging stations around Colombo, Sri Lanka
-        sampleStations.add(new ChargingStationLocation("Station A", 6.9271, 79.8612, "Fast Charging", true));
-        sampleStations.add(new ChargingStationLocation("Station B", 6.9319, 79.8478, "Standard Charging", false));
-        sampleStations.add(new ChargingStationLocation("Station C", 6.9147, 79.8731, "Fast Charging", true));
-        sampleStations.add(new ChargingStationLocation("Station D", 6.9388, 79.8542, "Standard Charging", true));
-        sampleStations.add(new ChargingStationLocation("Station E", 6.9200, 79.8600, "Ultra Fast Charging", false));
+        // Sample charging stations as fallback
+        chargingStations.clear();
+        chargingStations.add(new ChargingStationDto("1", "Station A", "Colombo Central", "Fast Charging", true, 6.9271, 79.8612));
+        chargingStations.add(new ChargingStationDto("2", "Station B", "Kandy Road", "Standard Charging", false, 6.9319, 79.8478));
+        chargingStations.add(new ChargingStationDto("3", "Station C", "Galle Road", "Fast Charging", true, 6.9147, 79.8731));
+        chargingStations.add(new ChargingStationDto("4", "Station D", "Marine Drive", "Standard Charging", true, 6.9388, 79.8542));
+        chargingStations.add(new ChargingStationDto("5", "Station E", "Bambalapitiya", "Ultra Fast Charging", false, 6.9200, 79.8600));
+        
+        if (googleMap != null) {
+            addChargingStationMarkers();
+        }
     }
 
     @Override
@@ -83,8 +115,10 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
             requestLocationPermission();
         }
 
-        // Add sample charging station markers
-        addChargingStationMarkers();
+        // Add charging station markers if data is already loaded
+        if (!chargingStations.isEmpty()) {
+            addChargingStationMarkers();
+        }
         
         // Set initial camera position to Colombo
         LatLng colombo = new LatLng(6.9271, 79.8612);
@@ -101,24 +135,27 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
     }
 
     private void addChargingStationMarkers() {
-        for (ChargingStationLocation station : sampleStations) {
-            LatLng position = new LatLng(station.latitude, station.longitude);
-            
-            MarkerOptions markerOptions = new MarkerOptions()
-                    .position(position)
-                    .title(station.name)
-                    .snippet(station.chargingType + (station.isAvailable ? " - Available" : " - Occupied"));
-            
-            // Use different colors for available vs occupied stations
-            if (station.isAvailable) {
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-            } else {
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        for (ChargingStationDto station : chargingStations) {
+            if (station.getLatitude() != 0.0 && station.getLongitude() != 0.0) {
+                LatLng position = new LatLng(station.getLatitude(), station.getLongitude());
+                
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(position)
+                        .title(station.getName())
+                        .snippet(station.getLocation() + " - " + station.getType() + 
+                                (station.isActive() ? " - Active" : " - Inactive"));
+                
+                // Use different colors for active vs inactive stations
+                if (station.isActive()) {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                } else {
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                }
+                
+                googleMap.addMarker(markerOptions)
+                        .setTag("Station: " + station.getName() + "\nLocation: " + station.getLocation() + 
+                               "\nType: " + station.getType() + "\nStatus: " + (station.isActive() ? "Active" : "Inactive"));
             }
-            
-            googleMap.addMarker(markerOptions)
-                    .setTag("Station: " + station.name + "\nType: " + station.chargingType + 
-                           "\nStatus: " + (station.isAvailable ? "Available" : "Occupied"));
         }
     }
 
@@ -163,22 +200,6 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
         }
     }
 
-    // Data class for charging station locations
-    private static class ChargingStationLocation {
-        String name;
-        double latitude;
-        double longitude;
-        String chargingType;
-        boolean isAvailable;
-
-        ChargingStationLocation(String name, double latitude, double longitude, String chargingType, boolean isAvailable) {
-            this.name = name;
-            this.latitude = latitude;
-            this.longitude = longitude;
-            this.chargingType = chargingType;
-            this.isAvailable = isAvailable;
-        }
-    }
 
     @Override
     protected void onResume() {
@@ -196,6 +217,9 @@ public class NearbyStationsActivity extends AppCompatActivity implements OnMapRe
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
+        if (chargingStationRepository != null) {
+            chargingStationRepository.shutdown();
+        }
     }
 
     @Override

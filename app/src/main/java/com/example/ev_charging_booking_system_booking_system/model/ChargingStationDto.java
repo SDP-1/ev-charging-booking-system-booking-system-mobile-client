@@ -6,6 +6,8 @@ public class ChargingStationDto {
     private String location;
     private String type;
     private boolean active;
+    private double latitude;
+    private double longitude;
 
     // Default constructor
     public ChargingStationDto() {}
@@ -17,6 +19,17 @@ public class ChargingStationDto {
         this.location = location;
         this.type = type;
         this.active = active;
+    }
+
+    // Constructor with geolocation
+    public ChargingStationDto(String id, String name, String location, String type, boolean active, double latitude, double longitude) {
+        this.id = id;
+        this.name = name;
+        this.location = location;
+        this.type = type;
+        this.active = active;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     // Getters
@@ -59,6 +72,22 @@ public class ChargingStationDto {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     // Method to get display name for dropdown - shows "Station ID - Name (Location)"
