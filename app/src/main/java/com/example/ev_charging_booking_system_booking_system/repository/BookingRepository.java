@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.ev_charging_booking_system_booking_system.api.ApiService;
 import com.example.ev_charging_booking_system_booking_system.api.ApiClient;
 import com.example.ev_charging_booking_system_booking_system.model.ApiResponse;
+import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
 import com.example.ev_charging_booking_system_booking_system.models.dto.*;
 
 import java.util.List;
@@ -61,6 +62,45 @@ public class BookingRepository {
             public void onFailure(Call<List<ChargingSlotDto>> call, Throwable t) {
                 String errorMessage = "Network error: " + t.getMessage();
                 Log.e("BookingRepository", errorMessage, t);
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    // Get all stations with available slots for today
+    public void getStationsWithAvailableSlots(String date, BookingCallback<List<ChargingStationDto>> callback) {
+        Call<List<ChargingStationDto>> call = apiService.getAllStations();
+        
+        call.enqueue(new Callback<List<ChargingStationDto>>() {
+            @Override
+            public void onResponse(Call<List<ChargingStationDto>> call, Response<List<ChargingStationDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Filter only active stations
+                    List<ChargingStationDto> activeStations = new java.util.ArrayList<>();
+                    for (ChargingStationDto station : response.body()) {
+                        if (station.isActive()) {
+                            activeStations.add(station);
+                        }
+                    }
+                    callback.onSuccess(activeStations);
+                } else {
+                    String errorMessage = "Failed to get charging stations. Code: " + response.code();
+                    if (response.errorBody() != null) {
+                        try {
+                            errorMessage += " - " + response.errorBody().string();
+                        } catch (Exception e) {
+                            // Ignore
+                        }
+                    }
+                    Log.e(TAG, errorMessage);
+                    callback.onError(errorMessage);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ChargingStationDto>> call, Throwable t) {
+                String errorMessage = "Network error: " + t.getMessage();
+                Log.e(TAG, errorMessage, t);
                 callback.onError(errorMessage);
             }
         });
