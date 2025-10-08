@@ -4,7 +4,6 @@ public class ChargingStationDto {
     private String id;
     private String name;
     private String location;
-    private Object geoLocation;  // Can be null or object - matches backend
     private String type;
     private boolean active;
 
@@ -12,11 +11,10 @@ public class ChargingStationDto {
     public ChargingStationDto() {}
 
     // Constructor with parameters
-    public ChargingStationDto(String id, String name, String location, Object geoLocation, String type, boolean active) {
+    public ChargingStationDto(String id, String name, String location, String type, boolean active) {
         this.id = id;
         this.name = name;
         this.location = location;
-        this.geoLocation = geoLocation;
         this.type = type;
         this.active = active;
     }
@@ -32,10 +30,6 @@ public class ChargingStationDto {
 
     public String getLocation() {
         return location;
-    }
-
-    public Object getGeoLocation() {
-        return geoLocation;
     }
 
     public String getType() {
@@ -57,10 +51,6 @@ public class ChargingStationDto {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public void setGeoLocation(Object geoLocation) {
-        this.geoLocation = geoLocation;
     }
 
     public void setType(String type) {
