@@ -70,6 +70,12 @@ dependencies {
     // Location services for maps
     implementation("com.google.android.gms:play-services-location:21.0.1")
     
+    // OpenStreetMap integration
+    implementation("org.osmdroid:osmdroid-android:6.1.18") {
+        exclude(group = "com.j256.ormlite", module = "ormlite-android")
+        exclude(group = "com.j256.ormlite", module = "ormlite-core")
+    }
+    
     // Image loading for profile pictures
     implementation("com.github.bumptech.glide:glide:4.15.1")
     testImplementation(libs.junit)
