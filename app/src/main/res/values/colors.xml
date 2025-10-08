@@ -43,4 +43,9 @@
     <!-- Gradient colors for advanced styling -->
     <color name="gradient_start">#FF4A90E2</color>
     <color name="gradient_end">#FF357ABD</color>
+    
+    <!-- Modern Login Design Colors -->
+    <color name="green_500">#36a439</color>              <!-- Primary green for buttons and accents -->
+    <color name="gray_300">#FFD1D5DB</color>              <!-- Light gray for borders and dividers -->
+    <color name="gray_600">#FF6B7280</color>              <!-- Medium gray for secondary text -->
 </resources>

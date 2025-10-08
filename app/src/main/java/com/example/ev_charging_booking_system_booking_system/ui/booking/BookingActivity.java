@@ -135,25 +135,32 @@ public class BookingActivity extends AppCompatActivity {
             }
         };
         
-        stationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        binding.spinnerStation.setAdapter(stationAdapter);
+        // Set up station selection click listener for TextInputLayout
+        binding.etStationId.setOnClickListener(v -> showStationSelectionDialog());
+    }
+    
+    private void showStationSelectionDialog() {
+        if (chargingStations == null || chargingStations.isEmpty()) {
+            Toast.makeText(this, "No stations available. Please try again later.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         
-        // Set up selection listener
-        binding.spinnerStation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedStation = chargingStations.get(position);
-                // Clear slot selection when station changes
-                selectedSlot = null;
-                availableSlots = null;
-                binding.layoutSelectedSlot.setVisibility(View.GONE);
-            }
-            
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                selectedStation = null;
-            }
-        });
+        String[] stationNames = new String[chargingStations.size()];
+        for (int i = 0; i < chargingStations.size(); i++) {
+            stationNames[i] = chargingStations.get(i).getDisplayName();
+        }
+        
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Select Charging Station")
+                .setItems(stationNames, (dialog, which) -> {
+                    selectedStation = chargingStations.get(which);
+                    binding.etStationId.setText(selectedStation.getDisplayName());
+                    // Clear slot selection when station changes
+                    selectedSlot = null;
+                    availableSlots = null;
+                    binding.layoutSelectedSlot.setVisibility(View.GONE);
+                })
+                .show();
     }
     
     private void loadAvailableStations() {
@@ -861,8 +868,8 @@ public class BookingActivity extends AppCompatActivity {
         if (chargingStations != null && stationId != null) {
             for (int i = 0; i < chargingStations.size(); i++) {
                 if (stationId.equals(chargingStations.get(i).getId())) {
-                    binding.spinnerStation.setSelection(i);
                     selectedStation = chargingStations.get(i);
+                    binding.etStationId.setText(selectedStation.getDisplayName());
                     break;
                 }
             }
@@ -970,7 +977,7 @@ public class BookingActivity extends AppCompatActivity {
     }
     
     private void enableEditMode() {
-        binding.spinnerStation.setEnabled(true);
+        binding.etStationId.setEnabled(true);
         binding.etReservationDate.setEnabled(true);
         binding.btnGetSlots.setEnabled(true);
         binding.etSelectedSlot.setEnabled(true);
@@ -984,7 +991,7 @@ public class BookingActivity extends AppCompatActivity {
     }
     
     private void disableEditMode() {
-        binding.spinnerStation.setEnabled(false);
+        binding.etStationId.setEnabled(false);
         binding.etReservationDate.setEnabled(false);
         binding.btnGetSlots.setEnabled(false);
         binding.etSelectedSlot.setEnabled(false);

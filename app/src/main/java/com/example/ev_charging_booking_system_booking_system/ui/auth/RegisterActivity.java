@@ -6,8 +6,7 @@ import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,8 +30,7 @@ import retrofit2.Response;
 
 public class RegisterActivity extends AppCompatActivity {
     
-    private RadioGroup radioGroupRole;
-    private RadioButton radioEVOwner, radioStationOperator;
+    private LinearLayout radioEVOwner, radioStationOperator;
     private TextInputEditText etUsername, etPassword, etConfirmPassword;
     private TextInputEditText etNic, etName, etPhone, etEmail;
     private TextInputLayout layoutNic;
@@ -56,7 +54,6 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        radioGroupRole = findViewById(R.id.radioGroupRole);
         radioEVOwner = findViewById(R.id.radioEVOwner);
         radioStationOperator = findViewById(R.id.radioStationOperator);
         
@@ -71,6 +68,9 @@ public class RegisterActivity extends AppCompatActivity {
         btnRegister = findViewById(R.id.btnRegister);
         tvLoginLink = findViewById(R.id.tvLoginLink);
         progressBar = findViewById(R.id.progressBar);
+        
+        // Initialize role selection (default to EV Owner)
+        updateRoleSelection(true);
     }
 
     private void setupListeners() {
@@ -83,16 +83,20 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         // Handle role selection changes
-        radioGroupRole.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.radioEVOwner) {
-                // Show NIC field for EV Owners
-                layoutNic.setVisibility(View.VISIBLE);
-                layoutNic.setHint("NIC Number (Required for EV Owners)");
-            } else if (checkedId == R.id.radioStationOperator) {
-                // Hide NIC field for Station Operators
-                layoutNic.setVisibility(View.GONE);
-                etNic.setText(""); // Clear NIC field
-            }
+        radioEVOwner.setOnClickListener(v -> {
+            // Show NIC field for EV Owners
+            layoutNic.setVisibility(View.VISIBLE);
+            layoutNic.setHint("NIC Number (Required for EV Owners)");
+            // Update visual selection
+            updateRoleSelection(true);
+        });
+        
+        radioStationOperator.setOnClickListener(v -> {
+            // Hide NIC field for Station Operators
+            layoutNic.setVisibility(View.GONE);
+            etNic.setText(""); // Clear NIC field
+            // Update visual selection
+            updateRoleSelection(false);
         });
     }
 
@@ -120,13 +124,23 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private String getSelectedRole() {
-        int selectedId = radioGroupRole.getCheckedRadioButtonId();
-        if (selectedId == R.id.radioEVOwner) {
+        // Check which role is currently selected based on NIC field visibility
+        if (layoutNic.getVisibility() == View.VISIBLE) {
             return "EVOwner";
-        } else if (selectedId == R.id.radioStationOperator) {
+        } else {
             return "StationOperator";
         }
-        return "EVOwner"; // Default to EVOwner
+    }
+    
+    private void updateRoleSelection(boolean isEVOwner) {
+        // Update background colors to show selection
+        if (isEVOwner) {
+            radioEVOwner.setBackgroundResource(R.drawable.button_selected_background);
+            radioStationOperator.setBackgroundResource(R.drawable.button_outline_background);
+        } else {
+            radioEVOwner.setBackgroundResource(R.drawable.button_outline_background);
+            radioStationOperator.setBackgroundResource(R.drawable.button_selected_background);
+        }
     }
 
     private boolean validateInput(String username, String password, String confirmPassword, 

@@ -16,13 +16,22 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create Account"
-            android:textSize="24sp"
+            android:text="Sign up"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/purple_700"
+            android:textColor="@color/black"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="32dp"
-            android:layout_marginTop="16dp" />
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="40dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Please enter the details below to continue"
+            android:textSize="14sp"
+            android:textColor="@color/gray_600"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="32dp" />
 
         <!-- Role Selection -->
         <TextView
@@ -34,42 +43,70 @@
             android:textColor="@color/black"
             android:layout_marginBottom="12dp" />
 
-        <RadioGroup
-            android:id="@+id/radioGroupRole"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp">
 
-            <RadioButton
+            <LinearLayout
                 android:id="@+id/radioEVOwner"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="EV Owner"
-                android:textSize="16sp"
-                android:checked="true"
-                android:layout_marginEnd="8dp"
-                android:gravity="center" />
+                android:layout_marginEnd="6dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/button_outline_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="16dp">
 
-            <RadioButton
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="EV Owner"
+                    android:textSize="16sp"
+                    android:textColor="@color/black" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/radioStationOperator"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="Station Operator"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"
-                android:gravity="center" />
+                android:layout_marginStart="6dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/button_outline_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="16dp">
 
-        </RadioGroup>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Station Operator"
+                    android:textSize="16sp"
+                    android:textColor="@color/black" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <!-- Username -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etUsername"
@@ -87,7 +124,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:passwordToggleEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
@@ -105,7 +148,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:passwordToggleEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etConfirmPassword"
@@ -123,13 +172,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNic"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="NIC Number (Required for EV Owners)"
+                android:hint="NIC Number"
                 android:inputType="textCapCharacters"
                 android:maxLines="1" />
 
@@ -140,7 +195,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etName"
@@ -157,7 +218,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPhone"
@@ -174,7 +241,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
@@ -191,25 +264,42 @@
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Register"
+            android:text="Sign up"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginBottom="16dp"
-            app:cornerRadius="8dp" />
+            app:backgroundTint="@color/green_500"
+            app:cornerRadius="16dp"
+            style="@style/Widget.MaterialComponents.Button" />
 
         <!-- Login Link -->
-        <TextView
-            android:id="@+id/tvLoginLink"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account? Sign In"
-            android:textSize="14sp"
-            android:textColor="@color/purple_700"
-            android:textStyle="bold"
-            android:clickable="true"
-            android:focusable="true"
+            android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="40dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an account? "
+                android:textSize="14sp"
+                android:textColor="@color/gray_600" />
+
+            <TextView
+                android:id="@+id/tvLoginLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="sign in"
+                android:textSize="14sp"
+                android:textColor="@color/green_500"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground" />
+
+        </LinearLayout>
 
         <!-- Progress Bar -->
         <ProgressBar

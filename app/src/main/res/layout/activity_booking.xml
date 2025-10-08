@@ -131,14 +131,16 @@
             app:endIconDrawable="@drawable/ic_map"
             app:endIconContentDescription="Open Map">
 
-        <Spinner
-            android:id="@+id/spinnerStation"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/custom_edittext"
-            android:padding="12dp"
-            android:prompt="@string/select_station_prompt" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etStationId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Select Charging Station"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"

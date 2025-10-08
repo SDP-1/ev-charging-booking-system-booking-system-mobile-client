@@ -6,8 +6,8 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,9 +32,9 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
     
     private EditText etUsername, etPassword;
-    private RadioGroup rgRole;
     private Button btnLogin;
-    private TextView tvRegisterLink;
+    private LinearLayout btnGoogleLogin, btnAppleLogin;
+    private TextView tvRegisterLink, tvForgotPassword;
     private ProgressBar progressBar;
     
     private ApiService apiService;
@@ -64,18 +64,33 @@ public class LoginActivity extends AppCompatActivity {
     private void initViews() {
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
-        rgRole = findViewById(R.id.rgRole);
         btnLogin = findViewById(R.id.btnLogin);
+        btnGoogleLogin = findViewById(R.id.btnGoogleLogin);
+        btnAppleLogin = findViewById(R.id.btnAppleLogin);
         tvRegisterLink = findViewById(R.id.tvRegisterLink);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
         progressBar = findViewById(R.id.progressBar);
     }
 
     private void setupListeners() {
         btnLogin.setOnClickListener(v -> attemptLogin());
         
+        // Social login buttons (placeholder functionality)
+        btnGoogleLogin.setOnClickListener(v -> {
+            Toast.makeText(this, "Google login coming soon!", Toast.LENGTH_SHORT).show();
+        });
+        
+        btnAppleLogin.setOnClickListener(v -> {
+            Toast.makeText(this, "Apple login coming soon!", Toast.LENGTH_SHORT).show();
+        });
+        
         tvRegisterLink.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
+        });
+        
+        tvForgotPassword.setOnClickListener(v -> {
+            Toast.makeText(this, "Forgot password feature coming soon!", Toast.LENGTH_SHORT).show();
         });
     }
 
