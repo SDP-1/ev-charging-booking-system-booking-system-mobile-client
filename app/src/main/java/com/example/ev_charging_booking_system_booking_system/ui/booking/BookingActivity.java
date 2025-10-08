@@ -1,6 +1,8 @@
 package com.example.ev_charging_booking_system_booking_system.ui.booking;
 
 import android.app.DatePickerDialog;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -9,6 +11,24 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayWithIW;
 
 import com.example.ev_charging_booking_system_booking_system.R;
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityBookingBinding;
@@ -46,6 +66,18 @@ public class BookingActivity extends AppCompatActivity {
     private ChargingStationDto selectedStation;
     private ArrayAdapter<ChargingStationDto> stationAdapter;
 
+    // Map related variables
+    private MapView mapView;
+    private FusedLocationProviderClient fusedLocationClient;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private GeoPoint currentLocation;
+    private Marker selectedStationMarker;
+    private boolean isMapVisible = false;
+    private boolean isLocationTracking = false;
+    private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +86,9 @@ public class BookingActivity extends AppCompatActivity {
         
         bookingRepository = new BookingRepository(this);
         selectedDateTime = Calendar.getInstance();
+        
+        // Initialize OSM configuration
+        Configuration.getInstance().load(this, getSharedPreferences("osmdroid", MODE_PRIVATE));
         
         setupViews();
         setupClickListeners();
@@ -145,6 +180,396 @@ public class BookingActivity extends AppCompatActivity {
                 });
             }
         });
+        // Set initial map icon
+        binding.layoutStationId.setEndIconDrawable(android.R.drawable.ic_menu_mylocation);
+    }
+    
+    private void setupMap() {
+        mapView = binding.mapView;
+        mapView.setTileSource(TileSourceFactory.MAPNIK);
+        mapView.setMultiTouchControls(true);
+        mapView.setBuiltInZoomControls(false); // We'll use custom controls
+        
+        // Set user agent to avoid tile server issues
+        org.osmdroid.config.Configuration.getInstance().setUserAgentValue("EVChargingApp/1.0");
+        
+        // Initialize location client
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        
+        // Set up map click listener
+        mapView.setOnClickListener(v -> {
+            // Get the center point of the map view
+            GeoPoint centerPoint = (GeoPoint) mapView.getMapCenter();
+            selectStationLocation(centerPoint);
+        });
+        
+        // Setup custom map controls
+        setupMapControls();
+        
+        // Request location permission and get current location first
+        requestLocationPermission();
+    }
+    
+    private void setupMapControls() {
+        // My Location button
+        binding.fabMyLocation.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) 
+                    == PackageManager.PERMISSION_GRANTED) {
+                if (isLocationTracking) {
+                    // Stop live tracking
+                    stopLocationTracking();
+                } else {
+                    // Start live tracking
+                    startLocationTracking();
+                }
+            } else {
+                requestLocationPermission();
+            }
+        });
+        
+        // Add long click listener for debugging
+        binding.fabMyLocation.setOnLongClickListener(v -> {
+            // Show current map center coordinates for debugging
+            GeoPoint center = (GeoPoint) mapView.getMapCenter();
+            String debugInfo = "Map Center: " + String.format("%.6f", center.getLatitude()) + 
+                    ", " + String.format("%.6f", center.getLongitude());
+            Toast.makeText(this, debugInfo, Toast.LENGTH_LONG).show();
+            android.util.Log.d("LocationDebug", debugInfo);
+            return true;
+        });
+        
+        // Zoom controls
+        binding.fabZoomIn.setOnClickListener(v -> {
+            mapView.getController().zoomIn();
+        });
+        
+        binding.fabZoomOut.setOnClickListener(v -> {
+            mapView.getController().zoomOut();
+        });
+    }
+    
+    private void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) 
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, 
+                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 
+                LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Permission already granted, get current location
+            getCurrentLocation();
+        }
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation();
+            } else {
+                Toast.makeText(this, "Location permission denied. Using default location.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    private void getCurrentLocation() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) 
+                == PackageManager.PERMISSION_GRANTED) {
+            
+            // Show loading message
+            Toast.makeText(this, "📍 Getting your location...", Toast.LENGTH_SHORT).show();
+            
+            // Try to get current location with high accuracy
+            try {
+                fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null && location.getAccuracy() < 100) {
+                                // Log location details for debugging
+                                android.util.Log.d("LocationDebug", "Location found: Lat=" + location.getLatitude() + 
+                                        ", Lon=" + location.getLongitude() + ", Accuracy=" + location.getAccuracy());
+                                
+                                // Check if location is in Sri Lanka (rough bounds)
+                                double lat = location.getLatitude();
+                                double lon = location.getLongitude();
+                                boolean isInSriLanka = (lat >= 5.9 && lat <= 9.8 && lon >= 79.6 && lon <= 81.9);
+                                
+                                android.util.Log.d("LocationDebug", "Location validation: Lat=" + lat + ", Lon=" + lon + ", InSriLanka=" + isInSriLanka);
+                                
+                                if (isInSriLanka) {
+                                    currentLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                    
+                                    // Clear any existing overlays first
+                                    mapView.getOverlays().clear();
+                                    
+                                    // Set map center to current location with animation
+                                    mapView.getController().animateTo(currentLocation);
+                                    mapView.getController().setZoom(16.0);
+                                    
+                                    // Add marker for current location
+                                    Marker currentLocationMarker = new Marker(mapView);
+                                    currentLocationMarker.setPosition(currentLocation);
+                                    currentLocationMarker.setTitle("📍 Your Current Location in Sri Lanka");
+                                    currentLocationMarker.setSnippet("Lat: " + String.format("%.6f", location.getLatitude()) + 
+                                            ", Lon: " + String.format("%.6f", location.getLongitude()) + 
+                                            "\nAccuracy: " + String.format("%.1f", location.getAccuracy()) + "m");
+                                    currentLocationMarker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+                                    mapView.getOverlays().add(currentLocationMarker);
+                                    
+                                    // Show marker info
+                                    currentLocationMarker.showInfoWindow();
+                                    
+                                    Toast.makeText(BookingActivity.this, "📍 Found your location in Sri Lanka!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // Location not in Sri Lanka, but still show it for debugging
+                                    android.util.Log.d("LocationDebug", "Location not in Sri Lanka bounds, but showing anyway for debugging");
+                                    currentLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                    
+                                    // Clear any existing overlays first
+                                    mapView.getOverlays().clear();
+                                    
+                                    // Set map center to current location
+                                    mapView.getController().setCenter(currentLocation);
+                                    mapView.getController().setZoom(16.0);
+                                    
+                                    // Add marker for current location
+                                    Marker currentLocationMarker = new Marker(mapView);
+                                    currentLocationMarker.setPosition(currentLocation);
+                                    currentLocationMarker.setTitle("📍 Your Location (Outside Sri Lanka)");
+                                    currentLocationMarker.setSnippet("Lat: " + String.format("%.6f", location.getLatitude()) + 
+                                            ", Lon: " + String.format("%.6f", location.getLongitude()) + 
+                                            "\nAccuracy: " + String.format("%.1f", location.getAccuracy()) + "m" +
+                                            "\nThis location is outside Sri Lanka bounds");
+                                    currentLocationMarker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+                                    mapView.getOverlays().add(currentLocationMarker);
+                                    
+                                    // Show marker info
+                                    currentLocationMarker.showInfoWindow();
+                                    
+                                    Toast.makeText(BookingActivity.this, "⚠️ Location found but outside Sri Lanka bounds. Check coordinates.", Toast.LENGTH_LONG).show();
+                                }
+                            } else {
+                                // Location not accurate enough, try last known location
+                                android.util.Log.d("LocationDebug", "Current location not accurate, trying last known location");
+                                getLastKnownLocation();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        android.util.Log.d("LocationDebug", "Current location failed, trying last known location: " + e.getMessage());
+                        getLastKnownLocation();
+                    });
+            } catch (Exception e) {
+                android.util.Log.d("LocationDebug", "Current location exception, trying last known location: " + e.getMessage());
+                getLastKnownLocation();
+            }
+        } else {
+            // No permission, use default location
+            setDefaultLocation();
+        }
+    }
+    
+    private void getLastKnownLocation() {
+        fusedLocationClient.getLastLocation()
+            .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if (location != null) {
+                        android.util.Log.d("LocationDebug", "Last known location: Lat=" + location.getLatitude() + 
+                                ", Lon=" + location.getLongitude() + ", Accuracy=" + location.getAccuracy());
+                        
+                        currentLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        
+                        // Clear any existing overlays first
+                        mapView.getOverlays().clear();
+                        
+                        // Set map center to current location
+                        mapView.getController().setCenter(currentLocation);
+                        mapView.getController().setZoom(16.0);
+                        
+                        // Add marker for current location
+                        Marker currentLocationMarker = new Marker(mapView);
+                        currentLocationMarker.setPosition(currentLocation);
+                        currentLocationMarker.setTitle("📍 Your Last Known Location");
+                        currentLocationMarker.setSnippet("Lat: " + String.format("%.6f", location.getLatitude()) + 
+                                ", Lon: " + String.format("%.6f", location.getLongitude()) + 
+                                "\nAccuracy: " + String.format("%.1f", location.getAccuracy()) + "m");
+                        currentLocationMarker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+                        mapView.getOverlays().add(currentLocationMarker);
+                        
+                        // Show marker info
+                        currentLocationMarker.showInfoWindow();
+                        
+                        Toast.makeText(BookingActivity.this, "📍 Found your last known location!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // No location found, use default location
+                        Toast.makeText(BookingActivity.this, "⚠️ No location found, using default location.", Toast.LENGTH_LONG).show();
+                        setDefaultLocation();
+                    }
+                }
+            })
+            .addOnFailureListener(e -> {
+                Toast.makeText(BookingActivity.this, "❌ Location error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                setDefaultLocation();
+            });
+    }
+    
+    private void setDefaultLocation() {
+        // Set default location (Colombo, Sri Lanka)
+        currentLocation = new GeoPoint(6.9271, 79.8612);
+        
+        // Clear any existing overlays first
+        mapView.getOverlays().clear();
+        
+        // Set map center to default location
+        mapView.getController().setCenter(currentLocation);
+        mapView.getController().setZoom(12.0);
+        
+        // Add marker for default location
+        Marker defaultLocationMarker = new Marker(mapView);
+        defaultLocationMarker.setPosition(currentLocation);
+        defaultLocationMarker.setTitle("📍 Default Location - Colombo, Sri Lanka");
+        defaultLocationMarker.setSnippet("Lat: 6.9271, Lon: 79.8612\nEnable location services for your actual location");
+        defaultLocationMarker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+        mapView.getOverlays().add(defaultLocationMarker);
+        
+        // Show marker info
+        defaultLocationMarker.showInfoWindow();
+        
+        Toast.makeText(this, "📍 Using default location in Colombo, Sri Lanka", Toast.LENGTH_LONG).show();
+    }
+    
+    private void startLocationTracking() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) 
+                != PackageManager.PERMISSION_GRANTED) {
+            requestLocationPermission();
+            return;
+        }
+        
+        // Create location request
+        locationRequest = LocationRequest.create()
+                .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+                .setInterval(5000) // Update every 5 seconds
+                .setFastestInterval(2000) // Fastest update every 2 seconds
+                .setSmallestDisplacement(10); // Update if moved 10 meters
+        
+        // Create location callback
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult != null && locationResult.getLastLocation() != null) {
+                    Location location = locationResult.getLastLocation();
+                    updateLocationOnMap(location);
+                }
+            }
+        };
+        
+        // Start location updates
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+        isLocationTracking = true;
+        
+        // Update button appearance
+        binding.fabMyLocation.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
+        binding.fabMyLocation.setContentDescription("Stop Live Tracking");
+        
+        Toast.makeText(this, "🔄 Live location tracking started!", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void stopLocationTracking() {
+        if (locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+        isLocationTracking = false;
+        
+        // Update button appearance
+        binding.fabMyLocation.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+        binding.fabMyLocation.setContentDescription("My Location");
+        
+        Toast.makeText(this, "⏹️ Live location tracking stopped!", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void updateLocationOnMap(Location location) {
+        if (location != null) {
+            // Log location details for debugging
+            android.util.Log.d("LocationDebug", "Live location update: Lat=" + location.getLatitude() + 
+                    ", Lon=" + location.getLongitude() + ", Accuracy=" + location.getAccuracy());
+            
+            currentLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
+            
+            // Clear any existing overlays first
+            mapView.getOverlays().clear();
+            
+            // Set map center to current location with animation
+            mapView.getController().animateTo(currentLocation);
+            
+            // Add marker for current location
+            Marker currentLocationMarker = new Marker(mapView);
+            currentLocationMarker.setPosition(currentLocation);
+            currentLocationMarker.setTitle("📍 Live Location Update");
+            currentLocationMarker.setSnippet("Lat: " + String.format("%.6f", location.getLatitude()) + 
+                    ", Lon: " + String.format("%.6f", location.getLongitude()) + 
+                    "\nAccuracy: " + String.format("%.1f", location.getAccuracy()) + "m" +
+                    "\nUpdated: " + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(new java.util.Date()));
+            currentLocationMarker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+            mapView.getOverlays().add(currentLocationMarker);
+            
+            // Show marker info
+            currentLocationMarker.showInfoWindow();
+        }
+    }
+    
+    private void selectStationLocation(GeoPoint location) {
+        // Remove previous station marker if exists
+        if (selectedStationMarker != null) {
+            mapView.getOverlays().remove(selectedStationMarker);
+        }
+        
+        // Add new station marker with better styling
+        selectedStationMarker = new Marker(mapView);
+        selectedStationMarker.setPosition(location);
+        selectedStationMarker.setTitle("⚡ Charging Station Selected");
+        selectedStationMarker.setSnippet("Coordinates: " + String.format("%.4f", location.getLatitude()) + 
+                ", " + String.format("%.4f", location.getLongitude()));
+        
+        // Set a custom icon for the marker (you can add a custom drawable)
+        selectedStationMarker.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_mylocation));
+        
+        mapView.getOverlays().add(selectedStationMarker);
+        
+        // Update station ID field with coordinates
+        String stationId = "ST_" + Math.round(location.getLatitude() * 1000) + "_" + Math.round(location.getLongitude() * 1000);
+        binding.etStationId.setText(stationId);
+        
+        // Show success feedback
+        Toast.makeText(this, "✅ Charging station location selected!", Toast.LENGTH_SHORT).show();
+        
+        // Animate to the selected location
+        mapView.getController().animateTo(location);
+        
+        // Show marker info window
+        selectedStationMarker.showInfoWindow();
+    }
+    
+    private void toggleMapVisibility() {
+        if (isMapVisible) {
+            // Hide map
+            binding.layoutMapContainer.setVisibility(View.GONE);
+            isMapVisible = false;
+            // Change icon to landmark icon
+            binding.layoutStationId.setEndIconDrawable(android.R.drawable.ic_menu_mylocation);
+        } else {
+            // Show map
+            binding.layoutMapContainer.setVisibility(View.VISIBLE);
+            isMapVisible = true;
+            // Change icon to close icon
+            binding.layoutStationId.setEndIconDrawable(android.R.drawable.ic_menu_close_clear_cancel);
+            
+            // If map hasn't been initialized yet, initialize it
+            if (mapView == null) {
+                setupMap();
+            }
+        }
     }
     
     private void setupClickListeners() {
@@ -156,6 +581,9 @@ public class BookingActivity extends AppCompatActivity {
         
         // Selected slot field click (to show slot selection dialog)
         binding.etSelectedSlot.setOnClickListener(v -> showSlotSelectionDialog());
+        
+        // Map icon click to show/hide map
+        binding.layoutStationId.setEndIconOnClickListener(v -> toggleMapVisibility());
         
         // Create/Update booking
         binding.btnCreateBooking.setOnClickListener(v -> {
@@ -592,5 +1020,41 @@ public class BookingActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mapView != null) {
+            mapView.onResume();
+        }
+        // Resume location tracking if it was active
+        if (isLocationTracking && locationCallback != null) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) 
+                    == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mapView != null) {
+            mapView.onPause();
+        }
+        // Pause location tracking to save battery
+        if (isLocationTracking && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Stop location tracking when activity is destroyed
+        if (isLocationTracking && locationCallback != null) {
+            fusedLocationClient.removeLocationUpdates(locationCallback);
+        }
     }
 }
