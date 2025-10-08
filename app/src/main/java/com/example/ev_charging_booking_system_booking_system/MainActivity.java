@@ -20,6 +20,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityMainBinding;
 import com.example.ev_charging_booking_system_booking_system.utils.TokenManager;
 import com.example.ev_charging_booking_system_booking_system.ui.auth.LoginActivity;
+import com.example.ev_charging_booking_system_booking_system.database.repositories.UserRepository;
+import com.example.ev_charging_booking_system_booking_system.database.models.LocalUser;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        
+        // Load user information in navigation header
+        loadUserInfoInHeader(navigationView);
         
         // Handle activities navigation separately (since they're activities, not fragments)
         navigationView.setNavigationItemSelectedListener(item -> {
@@ -122,5 +128,34 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+    
+    private void loadUserInfoInHeader(NavigationView navigationView) {
+        try {
+            // Get user information from local database
+            UserRepository userRepository = new UserRepository(this);
+            TokenManager tokenManager = new TokenManager(this);
+            
+            String currentUserId = tokenManager.getUserId();
+            if (currentUserId != null) {
+                LocalUser user = userRepository.getUserById(currentUserId);
+                if (user != null) {
+                    // Update header with user information
+                    TextView tvUserName = navigationView.getHeaderView(0).findViewById(R.id.tvUserName);
+                    TextView tvUserStatus = navigationView.getHeaderView(0).findViewById(R.id.tvUserStatus);
+                    
+                    if (tvUserName != null) {
+                        tvUserName.setText("Welcome, " + user.getUsername());
+                    }
+                    if (tvUserStatus != null) {
+                        String status = user.isActive() ? "● Active" : "● Inactive";
+                        tvUserStatus.setText(status);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Handle any errors silently
+            android.util.Log.e("MainActivity", "Error loading user info: " + e.getMessage());
+        }
     }
 }

@@ -28,7 +28,6 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
     
     public interface OnBookingActionListener {
         void onViewQRCode(BookingResponseDto booking);
-        void onUpdateBooking(BookingResponseDto booking);
         void onViewDetails(BookingResponseDto booking);
     }
     
@@ -68,7 +67,6 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
         private TextView tvReservationDateTime;
         private TextView tvBookingStatus;
         private MaterialButton btnViewDetails;
-        private MaterialButton btnUpdateBooking;
         private MaterialButton btnViewQRCode;
         
         public BookingViewHolder(@NonNull View itemView) {
@@ -79,7 +77,6 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             tvReservationDateTime = itemView.findViewById(R.id.tvReservationDateTime);
             tvBookingStatus = itemView.findViewById(R.id.tvBookingStatus);
             btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
-            btnUpdateBooking = itemView.findViewById(R.id.btnUpdateBooking);
             btnViewQRCode = itemView.findViewById(R.id.btnViewQRCode);
         }
         
@@ -116,31 +113,10 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
                 btnViewQRCode.setVisibility(View.GONE);
             }
             
-            // Disable update for completed, canceled bookings or if too close to reservation time
-            boolean canUpdate = !booking.isCompleted() && !booking.isCanceled() && 
-                              reservationDateTime != null && canStillUpdate(reservationDateTime);
-            btnUpdateBooking.setEnabled(canUpdate);
-            btnUpdateBooking.setAlpha(canUpdate ? 1.0f : 0.5f);
-            
-            // Update button text based on status
-            if (booking.isCanceled()) {
-                btnUpdateBooking.setText("Canceled");
-            } else if (booking.isCompleted()) {
-                btnUpdateBooking.setText("Completed");
-            } else {
-                btnUpdateBooking.setText("Update");
-            }
-            
             // Set click listeners
             btnViewDetails.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onViewDetails(booking);
-                }
-            });
-            
-            btnUpdateBooking.setOnClickListener(v -> {
-                if (listener != null && canUpdate) {
-                    listener.onUpdateBooking(booking);
                 }
             });
             
@@ -205,32 +181,5 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             }
         }
         
-        private boolean canStillUpdate(String reservationDateTime) {
-            try {
-                SimpleDateFormat formatWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                SimpleDateFormat formatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-                SimpleDateFormat formatNoZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                
-                Date parsedDate = null;
-                try {
-                    parsedDate = formatWithMillis.parse(reservationDateTime);
-                } catch (Exception e1) {
-                    try {
-                        parsedDate = formatWithoutMillis.parse(reservationDateTime);
-                    } catch (Exception e2) {
-                        parsedDate = formatNoZ.parse(reservationDateTime);
-                    }
-                }
-                
-                long reservationTime = parsedDate.getTime();
-                long currentTime = System.currentTimeMillis();
-                long timeDiff = reservationTime - currentTime;
-                
-                // Can update if more than 12 hours before reservation (12 * 60 * 60 * 1000 = 43200000)
-                return timeDiff > 43200000;
-            } catch (Exception e) {
-                return false; // If parsing fails, assume cannot update
-            }
-        }
     }
 }

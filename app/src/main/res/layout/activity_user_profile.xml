@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -29,50 +29,80 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Account Information"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_blue_dark" />
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="16dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/role_status_modern_background"
+                    android:padding="16dp"
+                    android:layout_marginBottom="12dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Role: "
-                        android:textStyle="bold" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvRole"
-                        android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Role"
+                            android:textSize="12sp"
+                            android:textColor="@color/gray_600"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/tvRole"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="EVOwner"
+                            android:textColor="@color/green_500"
+                            android:textStyle="bold"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/gray_300"
+                        android:layout_marginHorizontal="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="EVOwner"
-                        android:textColor="@android:color/holo_blue_bright" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Status"
+                            android:textSize="12sp"
+                            android:textColor="@color/gray_600"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp" />
+
+                        <TextView
+                            android:id="@+id/tvAccountStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Active"
+                            android:textColor="@color/green_500"
+                            android:textStyle="bold"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Status: "
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tvAccountStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Active" />
-
-                </LinearLayout>
 
             </LinearLayout>
 
@@ -84,7 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -96,22 +126,26 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Profile Details"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_blue_dark"
-                    android:layout_marginBottom="16dp" />
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="20dp" />
 
                 <!-- Username (Read-only) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="16dp"
                     app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:startIconDrawable="@android:drawable/ic_menu_myplaces">
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxStrokeColor="@color/green_500"
+                    app:hintTextColor="@color/green_500"
+                    app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                    app:startIconTint="@color/green_500"
+                    app:boxBackgroundColor="@color/white">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etUsername"
@@ -127,13 +161,17 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="16dp"
                     app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:startIconDrawable="@android:drawable/ic_menu_agenda">
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxStrokeColor="@color/green_500"
+                    app:hintTextColor="@color/green_500"
+                    app:startIconDrawable="@android:drawable/ic_menu_agenda"
+                    app:startIconTint="@color/green_500"
+                    app:boxBackgroundColor="@color/white">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etNic"
@@ -149,13 +187,17 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginBottom="16dp"
                     app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:startIconDrawable="@android:drawable/ic_dialog_email">
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxStrokeColor="@color/green_500"
+                    app:hintTextColor="@color/green_500"
+                    app:startIconDrawable="@android:drawable/ic_dialog_email"
+                    app:startIconTint="@color/green_500"
+                    app:boxBackgroundColor="@color/white">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etEmail"
@@ -170,13 +212,17 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="24dp"
                     app:boxBackgroundMode="outline"
-                    app:boxCornerRadiusBottomEnd="8dp"
-                    app:boxCornerRadiusBottomStart="8dp"
-                    app:boxCornerRadiusTopEnd="8dp"
-                    app:boxCornerRadiusTopStart="8dp"
-                    app:startIconDrawable="@android:drawable/stat_sys_phone_call">
+                    app:boxCornerRadiusBottomEnd="16dp"
+                    app:boxCornerRadiusBottomStart="16dp"
+                    app:boxCornerRadiusTopEnd="16dp"
+                    app:boxCornerRadiusTopStart="16dp"
+                    app:boxStrokeColor="@color/green_500"
+                    app:hintTextColor="@color/green_500"
+                    app:startIconDrawable="@android:drawable/stat_sys_phone_call"
+                    app:startIconTint="@color/green_500"
+                    app:boxBackgroundColor="@color/white">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPhone"
@@ -194,8 +240,11 @@
                     android:layout_height="60dp"
                     android:text="Update Profile"
                     android:textSize="16sp"
-                    android:backgroundTint="@android:color/holo_blue_dark"
-                    android:textColor="@android:color/white" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/green_500"
+                    app:cornerRadius="16dp"
+                    android:textColor="@color/white"
+                    style="@style/Widget.MaterialComponents.Button" />
 
             </LinearLayout>
 
@@ -207,7 +256,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
+            app:cardCornerRadius="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -219,18 +268,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Account Management"
-                    android:textSize="18sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/holo_blue_dark"
+                    android:textColor="@color/black"
                     android:layout_marginBottom="16dp" />
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="⚠️ Warning: Deactivating your account will require contacting back-office to reactivate."
-                    android:textSize="12sp"
-                    android:textColor="@android:color/holo_orange_dark"
-                    android:layout_marginBottom="12dp" />
+                    android:textSize="14sp"
+                    android:textColor="@color/button_warning"
+                    android:background="@drawable/warning_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp" />
 
                 <!-- Deactivate Account Button -->
                 <com.google.android.material.button.MaterialButton
@@ -239,11 +290,13 @@
                     android:layout_height="60dp"
                     android:text="Deactivate Account"
                     android:textSize="16sp"
+                    android:textStyle="bold"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:backgroundTint="@android:color/transparent"
-                    android:textColor="@android:color/holo_red_dark"
-                    app:strokeColor="@android:color/holo_red_dark"
-                    app:strokeWidth="2dp" />
+                    android:backgroundTint="@color/white"
+                    android:textColor="@color/button_danger"
+                    app:strokeColor="@color/button_danger"
+                    app:strokeWidth="2dp"
+                    app:cornerRadius="16dp" />
 
             </LinearLayout>
 

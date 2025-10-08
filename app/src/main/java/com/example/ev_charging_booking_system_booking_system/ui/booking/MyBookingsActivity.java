@@ -88,13 +88,6 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
         startActivity(intent);
     }
     
-    @Override
-    public void onUpdateBooking(BookingResponseDto booking) {
-        // Navigate to booking activity in update mode
-        Intent intent = new Intent(this, BookingActivity.class);
-        intent.putExtra("booking_id", booking.getId());
-        startActivity(intent);
-    }
     
     @Override
     public void onViewDetails(BookingResponseDto booking) {

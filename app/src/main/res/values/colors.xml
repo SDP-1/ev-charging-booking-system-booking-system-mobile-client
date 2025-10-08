@@ -46,6 +46,11 @@
     
     <!-- Modern Login Design Colors -->
     <color name="green_500">#36a439</color>              <!-- Primary green for buttons and accents -->
+    <color name="green_700">#2d7a2f</color>              <!-- Darker green for headers -->
+    <color name="gray_200">#FFE5E7EB</color>              <!-- Very light gray for card borders -->
     <color name="gray_300">#FFD1D5DB</color>              <!-- Light gray for borders and dividers -->
+    <color name="gray_500">#FF9CA3AF</color>              <!-- Medium gray for secondary text -->
     <color name="gray_600">#FF6B7280</color>              <!-- Medium gray for secondary text -->
+    <color name="gray_700">#FF374151</color>              <!-- Dark gray for primary text -->
+    <color name="background_light">#FFF9FAFB</color>      <!-- Light background -->
 </resources>

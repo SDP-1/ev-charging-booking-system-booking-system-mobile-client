@@ -3,32 +3,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="@color/white">
+    android:background="@color/background_light">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <TextView
+        <!-- Header Section -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Create New Reservation"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginBottom="16dp"
-            android:gravity="center" />
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Create New Reservation"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_700"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Book your EV charging slot"
+                android:textSize="16sp"
+                android:textColor="@color/gray_600"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+        <!-- Station Selection Section -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Select Charging Station"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/black"
-            android:layout_marginBottom="8dp" />
+            android:textColor="@color/green_700"
+            android:layout_marginBottom="12dp" />
         <!-- Map View -->
         <LinearLayout
             android:id="@+id/layoutMapContainer"
@@ -125,8 +143,14 @@
             android:id="@+id/layoutStationId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="20dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp"
             app:endIconMode="custom"
             app:endIconDrawable="@drawable/ic_map"
             app:endIconContentDescription="Open Map">
@@ -145,8 +169,14 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="20dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etReservationDate"
@@ -161,11 +191,16 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGetSlots"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="Get Available Time Slots"
-            android:layout_marginBottom="16dp"
-            android:textColor="@color/button_text_light"
-            android:backgroundTint="@color/design_default_color_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/green_500"
+            app:cornerRadius="16dp"
+            app:icon="@drawable/ic_calendar"
+            app:iconGravity="textStart"
             style="@style/Widget.MaterialComponents.Button" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -174,7 +209,13 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             android:visibility="gone"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/green_500"
+            app:hintTextColor="@color/green_500"
+            app:boxCornerRadiusTopStart="16dp"
+            app:boxCornerRadiusTopEnd="16dp"
+            app:boxCornerRadiusBottomStart="16dp"
+            app:boxCornerRadiusBottomEnd="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSelectedSlot"
@@ -189,114 +230,216 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCreateBooking"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="Create Reservation"
-            android:layout_marginBottom="16dp"
-            android:textColor="@color/button_text_light"
-            android:backgroundTint="@color/button_success"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="20dp"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/green_500"
+            app:cornerRadius="16dp"
+            app:icon="@drawable/ic_add"
+            app:iconGravity="textStart"
             style="@style/Widget.MaterialComponents.Button" />
 
-        <LinearLayout
+        <!-- Booking Summary Card -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/layoutBookingSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/white_box"
-            android:padding="16dp"
-            android:layout_marginTop="16dp"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Booking Summary"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="16dp" />
-
-            <TextView
-                android:id="@+id/tvBookingId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Booking ID: -"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tvStationId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Station ID: -"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tvReservationDateTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Date &amp; Time: -"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/tvBookingStatus"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Status: -"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/gray_200">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Booking Summary"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/green_700"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center" />
+
+                <!-- Booking Information -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_qr_code"
+                        android:layout_marginEnd="12dp"
+                        android:layout_gravity="center_vertical"
+                        app:tint="@color/green_500" />
+
+                    <TextView
+                        android:id="@+id/tvBookingId"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Booking ID: -"
+                        android:textSize="16sp"
+                        android:textColor="@color/gray_700" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_location"
+                        android:layout_marginEnd="12dp"
+                        android:layout_gravity="center_vertical"
+                        app:tint="@color/green_500" />
+
+                    <TextView
+                        android:id="@+id/tvStationId"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Station ID: -"
+                        android:textSize="16sp"
+                        android:textColor="@color/gray_700" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_calendar"
+                        android:layout_marginEnd="12dp"
+                        android:layout_gravity="center_vertical"
+                        app:tint="@color/green_500" />
+
+                    <TextView
+                        android:id="@+id/tvReservationDateTime"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Date &amp; Time: -"
+                        android:textSize="16sp"
+                        android:textColor="@color/gray_700" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status:"
+                        android:textSize="16sp"
+                        android:textColor="@color/gray_700"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvBookingStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        android:background="@drawable/status_badge_background"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp" />
+
+                </LinearLayout>
+
+                <!-- Action Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnUpdateBooking"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="Update"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp"
+                        android:textColor="@color/green_500"
+                        android:backgroundTint="@color/white"
+                        app:strokeColor="@color/green_500"
+                        app:strokeWidth="2dp"
+                        app:cornerRadius="12dp"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCancelBooking"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:text="Cancel"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/white"
+                        app:backgroundTint="@color/button_danger"
+                        app:cornerRadius="12dp"
+                        style="@style/Widget.MaterialComponents.Button" />
+
+                </LinearLayout>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnUpdateBooking"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Update"
-                    android:layout_marginEnd="8dp"
-                    android:textColor="@color/button_text_light"
-                    android:backgroundTint="@color/button_primary"
-                    style="@style/Widget.MaterialComponents.Button" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCancelBooking"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Cancel"
-                    android:layout_marginStart="8dp"
-                    android:textColor="@color/button_text_light"
-                    android:backgroundTint="@color/button_danger"
+                    android:id="@+id/btnViewQRCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="View QR Code"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="12dp"
+                    android:textColor="@color/white"
+                    app:backgroundTint="@color/green_500"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_qr_code"
+                    app:iconGravity="textStart"
+                    android:visibility="gone"
                     style="@style/Widget.MaterialComponents.Button" />
 
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnViewQRCode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="View QR Code"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/button_text_light"
-                android:backgroundTint="@color/button_warning"
-                android:visibility="gone"
-                style="@style/Widget.MaterialComponents.Button" />
+        </com.google.android.material.card.MaterialCardView>
 
-        </LinearLayout>
-
+        <!-- Loading Indicator -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            android:indeterminateTint="@color/green_500" />
 
     </LinearLayout>
+
 </ScrollView>
