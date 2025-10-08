@@ -21,6 +21,10 @@ public interface ApiService {
     @POST("Auth/deactivate/{userId}")
     Call<ApiResponse> deactivateUser(@Path("userId") String userId);
     
+    // Charging Station APIs
+    @GET("ChargingStation/all")
+    Call<List<ChargingStationDto>> getAllStations();
+    
     // Charging Slot APIs
     @GET("ChargingSlot/available/{stationId}/{date}")
     Call<List<ChargingSlotDto>> getAvailableSlots(@Path("stationId") String stationId, @Path("date") String date);

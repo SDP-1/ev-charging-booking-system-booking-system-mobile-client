@@ -5,6 +5,9 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +32,7 @@ import org.osmdroid.views.overlay.OverlayWithIW;
 
 import com.example.ev_charging_booking_system_booking_system.R;
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityBookingBinding;
+import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
 import com.example.ev_charging_booking_system_booking_system.models.dto.ChargingSlotDto;
 import com.example.ev_charging_booking_system_booking_system.repository.BookingRepository;
@@ -57,6 +61,11 @@ public class BookingActivity extends AppCompatActivity {
     private List<ChargingSlotDto> availableSlots;
     private ChargingSlotDto selectedSlot;
     
+    // Station selection variables
+    private List<ChargingStationDto> chargingStations;
+    private ChargingStationDto selectedStation;
+    private ArrayAdapter<ChargingStationDto> stationAdapter;
+
     // Map related variables
     private MapView mapView;
     private FusedLocationProviderClient fusedLocationClient;
@@ -67,6 +76,7 @@ public class BookingActivity extends AppCompatActivity {
     private boolean isLocationTracking = false;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +107,79 @@ public class BookingActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
+        setupStationSpinner();
+        loadAvailableStations();
+    }
+    
+    private void setupStationSpinner() {
+        // Initialize the adapter
+        stationAdapter = new ArrayAdapter<ChargingStationDto>(this, android.R.layout.simple_spinner_item) {
+            @Override
+            public View getView(int position, View convertView, android.view.ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                ChargingStationDto station = getItem(position);
+                if (station != null) {
+                    ((android.widget.TextView) view).setText(station.getDisplayName());
+                }
+                return view;
+            }
+            
+            @Override
+            public View getDropDownView(int position, View convertView, android.view.ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                ChargingStationDto station = getItem(position);
+                if (station != null) {
+                    ((android.widget.TextView) view).setText(station.getDisplayName());
+                }
+                return view;
+            }
+        };
+        
+        stationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerStation.setAdapter(stationAdapter);
+        
+        // Set up selection listener
+        binding.spinnerStation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedStation = chargingStations.get(position);
+                // Clear slot selection when station changes
+                selectedSlot = null;
+                availableSlots = null;
+                binding.layoutSelectedSlot.setVisibility(View.GONE);
+            }
+            
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedStation = null;
+            }
+        });
+    }
+    
+    private void loadAvailableStations() {
+        String today = dateFormat.format(new Date());
+        bookingRepository.getStationsWithAvailableSlots(today, new BookingRepository.BookingCallback<List<ChargingStationDto>>() {
+            @Override
+            public void onSuccess(List<ChargingStationDto> stations) {
+                runOnUiThread(() -> {
+                    chargingStations = stations;
+                    stationAdapter.clear();
+                    stationAdapter.addAll(stations);
+                    stationAdapter.notifyDataSetChanged();
+                    
+                    if (stations.isEmpty()) {
+                        Toast.makeText(BookingActivity.this, "No charging stations available", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    Toast.makeText(BookingActivity.this, "Error loading stations: " + error, Toast.LENGTH_LONG).show();
+                });
+            }
+        });
         // Set initial map icon
         binding.layoutStationId.setEndIconDrawable(android.R.drawable.ic_menu_mylocation);
     }
@@ -544,13 +627,13 @@ public class BookingActivity extends AppCompatActivity {
     }
     
     private void getAvailableSlots() {
-        String stationId = binding.etStationId.getText().toString().trim();
-        String selectedDate = binding.etReservationDate.getText().toString().trim();
-        
-        if (stationId.isEmpty()) {
-            Toast.makeText(this, "Please enter Station ID first", Toast.LENGTH_SHORT).show();
+        if (selectedStation == null) {
+            Toast.makeText(this, "Please select a charging station first", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        String stationId = selectedStation.getId();
+        String selectedDate = binding.etReservationDate.getText().toString().trim();
         
         if (selectedDate.isEmpty()) {
             Toast.makeText(this, "Please select a date first", Toast.LENGTH_SHORT).show();
@@ -682,12 +765,12 @@ public class BookingActivity extends AppCompatActivity {
             return;
         }
 
-        String stationId = binding.etStationId.getText().toString().trim();
-        
-        if (stationId.isEmpty()) {
-            Toast.makeText(this, "Please enter Station ID", Toast.LENGTH_SHORT).show();
+        if (selectedStation == null) {
+            Toast.makeText(this, "Please select a charging station", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        String stationId = selectedStation.getId();
 
         if (selectedSlot == null) {
             Toast.makeText(this, "Please select a new time slot", Toast.LENGTH_SHORT).show();
@@ -774,9 +857,32 @@ public class BookingActivity extends AppCompatActivity {
         });
     }
     
+    private void selectStationById(String stationId) {
+        if (chargingStations != null && stationId != null) {
+            for (int i = 0; i < chargingStations.size(); i++) {
+                if (stationId.equals(chargingStations.get(i).getId())) {
+                    binding.spinnerStation.setSelection(i);
+                    selectedStation = chargingStations.get(i);
+                    break;
+                }
+            }
+        }
+    }
+    
+    private String getStationDisplayName(String stationId) {
+        if (chargingStations != null && stationId != null) {
+            for (ChargingStationDto station : chargingStations) {
+                if (stationId.equals(station.getId())) {
+                    return station.getDisplayName();
+                }
+            }
+        }
+        return stationId; // Fallback to ID if name not found
+    }
+    
     private void populateFieldsForUpdate(BookingResponseDto booking) {
         // Populate fields with existing booking data
-        binding.etStationId.setText(booking.getStationId());
+        selectStationById(booking.getStationId());
         
         try {
             // Try parsing with milliseconds first, then without milliseconds
@@ -803,7 +909,9 @@ public class BookingActivity extends AppCompatActivity {
         binding.layoutBookingSummary.setVisibility(View.VISIBLE);
         
         binding.tvBookingId.setText("Booking ID: " + booking.getId());
-        binding.tvStationId.setText("Station ID: " + booking.getStationId());
+        // Display station name if available, otherwise fall back to ID
+        String stationDisplay = getStationDisplayName(booking.getStationId());
+        binding.tvStationId.setText("Station: " + stationDisplay);
         binding.tvReservationDateTime.setText("Date & Time: " + formatDateTime(booking.getReservationDateTime()));
         
         String status = getBookingStatus(booking);
@@ -862,7 +970,7 @@ public class BookingActivity extends AppCompatActivity {
     }
     
     private void enableEditMode() {
-        binding.etStationId.setEnabled(true);
+        binding.spinnerStation.setEnabled(true);
         binding.etReservationDate.setEnabled(true);
         binding.btnGetSlots.setEnabled(true);
         binding.etSelectedSlot.setEnabled(true);
@@ -876,7 +984,7 @@ public class BookingActivity extends AppCompatActivity {
     }
     
     private void disableEditMode() {
-        binding.etStationId.setEnabled(false);
+        binding.spinnerStation.setEnabled(false);
         binding.etReservationDate.setEnabled(false);
         binding.btnGetSlots.setEnabled(false);
         binding.etSelectedSlot.setEnabled(false);
@@ -885,11 +993,10 @@ public class BookingActivity extends AppCompatActivity {
     }
     
     private boolean validateInputs() {
-        String stationId = binding.etStationId.getText().toString().trim();
         String date = binding.etReservationDate.getText().toString().trim();
         
-        if (stationId.isEmpty()) {
-            binding.etStationId.setError("Station ID is required");
+        if (selectedStation == null) {
+            Toast.makeText(this, "Please select a charging station", Toast.LENGTH_SHORT).show();
             return false;
         }
         

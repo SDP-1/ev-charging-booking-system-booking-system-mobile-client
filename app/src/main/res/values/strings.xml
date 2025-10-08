@@ -15,4 +15,7 @@
     
     <!-- ZXing barcode scanner strings -->
     <string name="zxing_msg_default_status">Place a barcode inside the viewfinder rectangle to scan it.</string>
+    
+    <!-- Booking strings -->
+    <string name="select_station_prompt">Choose a charging station</string>
 </resources>

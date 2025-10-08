@@ -21,6 +21,14 @@
             android:layout_marginBottom="16dp"
             android:gravity="center" />
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Charging Station"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="8dp" />
         <!-- Map View -->
         <LinearLayout
             android:id="@+id/layoutMapContainer"
@@ -123,13 +131,14 @@
             app:endIconDrawable="@drawable/ic_map"
             app:endIconContentDescription="Open Map">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etStationId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Station ID"
-                android:inputType="text" />
-        </com.google.android.material.textfield.TextInputLayout>
+        <Spinner
+            android:id="@+id/spinnerStation"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/custom_edittext"
+            android:padding="12dp"
+            android:prompt="@string/select_station_prompt" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
