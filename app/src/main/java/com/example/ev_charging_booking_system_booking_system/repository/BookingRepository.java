@@ -235,6 +235,40 @@ public class BookingRepository {
         });
     }
 
+    // Get all bookings (for operators)
+    public void getAllBookings(BookingCallback<List<BookingResponseDto>> callback) {
+        Log.d(TAG, "Attempting to get all bookings...");
+        Call<List<BookingResponseDto>> call = apiService.getAllBookings();
+        call.enqueue(new Callback<List<BookingResponseDto>>() {
+            @Override
+            public void onResponse(Call<List<BookingResponseDto>> call, Response<List<BookingResponseDto>> response) {
+                Log.d(TAG, "Response received. Code: " + response.code() + ", Success: " + response.isSuccessful());
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "All bookings retrieved successfully. Count: " + response.body().size());
+                    callback.onSuccess(response.body());
+                } else {
+                    String error = "Failed to get all bookings. Code: " + response.code();
+                    if (response.errorBody() != null) {
+                        try {
+                            error += " - " + response.errorBody().string();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error reading error body", e);
+                        }
+                    }
+                    Log.e(TAG, error);
+                    callback.onError(error);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<BookingResponseDto>> call, Throwable t) {
+                String error = "Network error: " + t.getMessage();
+                Log.e(TAG, error, t);
+                callback.onError(error);
+            }
+        });
+    }
+
     // Get QR code for booking
     public void getBookingQRCode(String bookingId, BookingCallback<QrCodeResponseDto> callback) {
         Call<QrCodeResponseDto> call = apiService.getBookingQRCode(bookingId);
@@ -303,6 +337,78 @@ public class BookingRepository {
 
             @Override
             public void onFailure(Call<BookingResponseDto> call, Throwable t) {
+                String error = "Network error: " + t.getMessage();
+                Log.e(TAG, error, t);
+                callback.onError(error);
+            }
+        });
+    }
+    
+    // Update service status (Station Operator)
+    public void updateServiceStatus(String bookingId, String serviceStatus, String cancellationReason, BookingCallback<String> callback) {
+        Log.d(TAG, "Attempting to update service status for booking: " + bookingId);
+        
+        com.example.ev_charging_booking_system_booking_system.models.dto.UpdateServiceStatusDto updateDto = 
+            new com.example.ev_charging_booking_system_booking_system.models.dto.UpdateServiceStatusDto(serviceStatus, cancellationReason);
+        
+        Call<com.example.ev_charging_booking_system_booking_system.model.ApiResponse> call = apiService.updateServiceStatus(bookingId, updateDto);
+        call.enqueue(new Callback<com.example.ev_charging_booking_system_booking_system.model.ApiResponse>() {
+            @Override
+            public void onResponse(Call<com.example.ev_charging_booking_system_booking_system.model.ApiResponse> call, Response<com.example.ev_charging_booking_system_booking_system.model.ApiResponse> response) {
+                Log.d(TAG, "Response received. Code: " + response.code() + ", Success: " + response.isSuccessful());
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Service status updated successfully");
+                    callback.onSuccess("Service status updated successfully");
+                } else {
+                    String error = "Failed to update service status. Code: " + response.code();
+                    if (response.errorBody() != null) {
+                        try {
+                            error += " - " + response.errorBody().string();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error reading error body", e);
+                        }
+                    }
+                    Log.e(TAG, error);
+                    callback.onError(error);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.ev_charging_booking_system_booking_system.model.ApiResponse> call, Throwable t) {
+                String error = "Network error: " + t.getMessage();
+                Log.e(TAG, error, t);
+                callback.onError(error);
+            }
+        });
+    }
+    
+    // Get done services count (Station Operator)
+    public void getDoneServicesCount(BookingCallback<Long> callback) {
+        Log.d(TAG, "Attempting to get done services count...");
+        Call<com.example.ev_charging_booking_system_booking_system.model.DoneServicesCountResponse> call = apiService.getDoneServicesCount();
+        call.enqueue(new Callback<com.example.ev_charging_booking_system_booking_system.model.DoneServicesCountResponse>() {
+            @Override
+            public void onResponse(Call<com.example.ev_charging_booking_system_booking_system.model.DoneServicesCountResponse> call, Response<com.example.ev_charging_booking_system_booking_system.model.DoneServicesCountResponse> response) {
+                Log.d(TAG, "Response received. Code: " + response.code() + ", Success: " + response.isSuccessful());
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Done services count retrieved successfully: " + response.body().getCount());
+                    callback.onSuccess(response.body().getCount());
+                } else {
+                    String error = "Failed to get done services count. Code: " + response.code();
+                    if (response.errorBody() != null) {
+                        try {
+                            error += " - " + response.errorBody().string();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error reading error body", e);
+                        }
+                    }
+                    Log.e(TAG, error);
+                    callback.onError(error);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<com.example.ev_charging_booking_system_booking_system.model.DoneServicesCountResponse> call, Throwable t) {
                 String error = "Network error: " + t.getMessage();
                 Log.e(TAG, error, t);
                 callback.onError(error);

@@ -545,6 +545,22 @@
                 android:visibility="gone"
                 style="@style/Widget.MaterialComponents.Button" />
 
+            <!-- Service Button (Station Operator) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnService"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Service"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/button_primary"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_real_time_status"
+                app:iconGravity="textStart"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.Button" />
+
         </LinearLayout>
 
     </LinearLayout>

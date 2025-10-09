@@ -219,6 +219,12 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
         startActivity(intent);
     }
     
+    @Override
+    public void onUpdateServiceStatus(BookingResponseDto booking, String status, String reason) {
+        // Not used in MyBookingsActivity - this is for EV owners
+        // Service status updates are handled by Station Operators
+    }
+    
     private void showProgress(boolean show) {
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         binding.recyclerViewBookings.setVisibility(show ? View.GONE : View.VISIBLE);

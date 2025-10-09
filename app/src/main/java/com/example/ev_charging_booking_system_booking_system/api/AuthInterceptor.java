@@ -27,6 +27,9 @@ public class AuthInterceptor implements Interceptor {
         
         // Add Authorization header if token exists
         String authHeader = tokenManager.getAuthHeader();
+        android.util.Log.d("AuthInterceptor", "Request URL: " + url);
+        android.util.Log.d("AuthInterceptor", "Auth header: " + (authHeader != null ? "Present" : "Missing"));
+        
         if (authHeader != null) {
             Request authenticatedRequest = originalRequest.newBuilder()
                 .header("Authorization", authHeader)

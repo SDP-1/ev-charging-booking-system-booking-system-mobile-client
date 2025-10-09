@@ -130,6 +130,12 @@ public class DoneServicesActivity extends AppCompatActivity implements BookingsA
         // Navigate to QR code view
         Toast.makeText(this, "View QR code for booking: " + booking.getId(), Toast.LENGTH_SHORT).show();
     }
+    
+    @Override
+    public void onUpdateServiceStatus(BookingResponseDto booking, String status, String reason) {
+        // Not used in DoneServicesActivity - this shows completed services
+        // Service status updates are handled in AllBookingsActivity
+    }
 
     @Override
     public boolean onSupportNavigateUp() {

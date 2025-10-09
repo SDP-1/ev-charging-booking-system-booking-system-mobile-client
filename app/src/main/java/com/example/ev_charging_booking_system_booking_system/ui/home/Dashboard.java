@@ -21,6 +21,7 @@ import com.example.ev_charging_booking_system_booking_system.models.dto.BookingR
 import com.example.ev_charging_booking_system_booking_system.repository.BookingRepository;
 import com.example.ev_charging_booking_system_booking_system.repository.ChargingStationRepository;
 import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
+import com.example.ev_charging_booking_system_booking_system.ui.booking.AllBookingsActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.booking.BookingActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.booking.MyBookingsActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.maps.NearbyStationsActivity;
@@ -98,6 +99,9 @@ public class Dashboard extends AppCompatActivity {
         binding.btnQRScanner.setVisibility(View.VISIBLE);
         binding.btnQRScanner.setText("QR Code Scanner");
         
+        // Show Service button for operators
+        binding.btnService.setVisibility(View.VISIBLE);
+        
         // Hide EV Owner specific features
         binding.cardPendingReservations.setVisibility(View.GONE);
         binding.cardApprovedReservations.setVisibility(View.GONE);
@@ -106,6 +110,9 @@ public class Dashboard extends AppCompatActivity {
         
         // Hide nearby stations map for Station Operators
         binding.layoutNearbyStations.setVisibility(View.GONE);
+        
+        // Load done services count
+        loadDoneServicesCount();
         
         // Station management features removed
     }
@@ -187,6 +194,14 @@ public class Dashboard extends AppCompatActivity {
         binding.btnQRScanner.setOnClickListener(v -> {
             if (Constants.ROLE_STATION_OPERATOR.equals(userRole)) {
                 Intent intent = new Intent(Dashboard.this, QRScannerActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // Service button (Station Operators only)
+        binding.btnService.setOnClickListener(v -> {
+            if (Constants.ROLE_STATION_OPERATOR.equals(userRole)) {
+                Intent intent = new Intent(Dashboard.this, AllBookingsActivity.class);
                 startActivity(intent);
             }
         });
@@ -458,11 +473,43 @@ public class Dashboard extends AppCompatActivity {
         // Or we can add a progress bar to the layout if needed
     }
 
+    private void loadDoneServicesCount() {
+        if (bookingRepository == null) {
+            bookingRepository = new BookingRepository(this);
+        }
+        
+        bookingRepository.getDoneServicesCount(new BookingRepository.BookingCallback<Long>() {
+            @Override
+            public void onSuccess(Long count) {
+                runOnUiThread(() -> {
+                    // Update the done services count in the UI
+                    binding.tvDoneServicesCount.setText(String.valueOf(count));
+                    android.util.Log.d("Dashboard", "Done services count loaded: " + count);
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    android.util.Log.e("Dashboard", "Error loading done services count: " + error);
+                    // Set default count to 0 on error
+                    binding.tvDoneServicesCount.setText("0");
+                });
+            }
+        });
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         // Refresh dashboard data when returning to the screen
         loadDashboardData();
+        
+        // Refresh done services count for Station Operators
+        if (Constants.ROLE_STATION_OPERATOR.equals(userRole)) {
+            loadDoneServicesCount();
+        }
+        
         // Resume map
         binding.mapView.onResume();
     }

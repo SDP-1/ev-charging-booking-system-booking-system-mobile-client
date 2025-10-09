@@ -5,7 +5,11 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ev_charging_booking_system_booking_system.R;
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,15 +31,23 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
     private List<BookingResponseDto> bookings = new ArrayList<>();
     private Context context;
     private OnBookingActionListener listener;
+    private boolean showServiceStatus = false;
     
     public interface OnBookingActionListener {
         void onViewQRCode(BookingResponseDto booking);
         void onViewDetails(BookingResponseDto booking);
+        void onUpdateServiceStatus(BookingResponseDto booking, String status, String reason);
     }
     
     public BookingsAdapter(Context context, OnBookingActionListener listener) {
         this.context = context;
         this.listener = listener;
+    }
+    
+    public BookingsAdapter(Context context, OnBookingActionListener listener, boolean showServiceStatus) {
+        this.context = context;
+        this.listener = listener;
+        this.showServiceStatus = showServiceStatus;
     }
     
     @NonNull
@@ -69,6 +83,13 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
         private MaterialButton btnViewDetails;
         private MaterialButton btnViewQRCode;
         
+        // Service Status Components
+        private LinearLayout layoutServiceStatus;
+        private AutoCompleteTextView spinnerServiceStatus;
+        private TextInputLayout layoutCancellationReason;
+        private TextInputEditText etCancellationReason;
+        private MaterialButton btnUpdateServiceStatus;
+        
         public BookingViewHolder(@NonNull View itemView) {
             super(itemView);
             
@@ -78,6 +99,13 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             tvBookingStatus = itemView.findViewById(R.id.tvBookingStatus);
             btnViewDetails = itemView.findViewById(R.id.btnViewDetails);
             btnViewQRCode = itemView.findViewById(R.id.btnViewQRCode);
+            
+            // Service Status Components
+            layoutServiceStatus = itemView.findViewById(R.id.layoutServiceStatus);
+            spinnerServiceStatus = itemView.findViewById(R.id.spinnerServiceStatus);
+            layoutCancellationReason = itemView.findViewById(R.id.layoutCancellationReason);
+            etCancellationReason = itemView.findViewById(R.id.etCancellationReason);
+            btnUpdateServiceStatus = itemView.findViewById(R.id.btnUpdateServiceStatus);
         }
         
         public void bind(BookingResponseDto booking) {
@@ -106,6 +134,14 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             tvBookingStatus.setText(status);
             setStatusColor(tvBookingStatus, status);
             
+            // Show/hide service status section
+            if (showServiceStatus) {
+                layoutServiceStatus.setVisibility(View.VISIBLE);
+                setupServiceStatusDropdown(booking);
+            } else {
+                layoutServiceStatus.setVisibility(View.GONE);
+            }
+            
             // Hide buttons for completed bookings
             if (booking.isCompleted()) {
                 btnViewDetails.setVisibility(View.GONE);
@@ -132,6 +168,53 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             btnViewQRCode.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onViewQRCode(booking);
+                }
+            });
+        }
+        
+        private void setupServiceStatusDropdown(BookingResponseDto booking) {
+            // Setup dropdown options
+            String[] statusOptions = {"Select Status", "Done", "Cancelled"};
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, statusOptions);
+            spinnerServiceStatus.setAdapter(adapter);
+            
+            // Set default text
+            spinnerServiceStatus.setText("Select Status", false);
+            
+            // Handle dropdown selection
+            spinnerServiceStatus.setOnItemClickListener((parent, view, position, id) -> {
+                String selectedStatus = statusOptions[position];
+                if ("Cancelled".equals(selectedStatus)) {
+                    layoutCancellationReason.setVisibility(View.VISIBLE);
+                    btnUpdateServiceStatus.setVisibility(View.VISIBLE);
+                } else if ("Done".equals(selectedStatus)) {
+                    layoutCancellationReason.setVisibility(View.GONE);
+                    btnUpdateServiceStatus.setVisibility(View.VISIBLE);
+                } else {
+                    layoutCancellationReason.setVisibility(View.GONE);
+                    btnUpdateServiceStatus.setVisibility(View.GONE);
+                }
+            });
+            
+            // Handle update button click
+            btnUpdateServiceStatus.setOnClickListener(v -> {
+                String selectedStatus = spinnerServiceStatus.getText().toString();
+                if ("Select Status".equals(selectedStatus)) {
+                    Toast.makeText(context, "Please select a status", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                String reason = "";
+                if ("Cancelled".equals(selectedStatus)) {
+                    reason = etCancellationReason.getText().toString().trim();
+                    if (reason.isEmpty()) {
+                        Toast.makeText(context, "Please provide a reason for cancellation", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+                
+                if (listener != null) {
+                    listener.onUpdateServiceStatus(booking, selectedStatus, reason);
                 }
             });
         }

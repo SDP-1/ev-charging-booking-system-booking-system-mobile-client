@@ -57,6 +57,12 @@ public interface ApiService {
     @GET("Booking/qrcode/{bookingId}")
     Call<QrCodeResponseDto> getBookingQRCode(@Path("bookingId") String bookingId);
     
+    @PUT("Booking/service-status/{bookingId}")
+    Call<ApiResponse> updateServiceStatus(@Path("bookingId") String bookingId, @Body UpdateServiceStatusDto updateDto);
+    
+    @GET("Booking/done-services-count")
+    Call<DoneServicesCountResponse> getDoneServicesCount();
+    
     // EV Owner APIs
     @GET("EVOwner/{nic}")
     Call<User> getEVOwnerByNic(@Path("nic") String nic);

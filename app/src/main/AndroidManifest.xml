@@ -73,6 +73,12 @@
             android:parentActivityName=".MainActivity" />
             
         <activity
+            android:name=".ui.booking.AllBookingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Evchargingbookingsystembookingsystem"
+            android:parentActivityName=".ui.home.Dashboard" />
+            
+        <activity
             android:name=".ui.booking.QRCodeActivity"
             android:exported="false"
             android:theme="@style/Theme.Evchargingbookingsystembookingsystem"
