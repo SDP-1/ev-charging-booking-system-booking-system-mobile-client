@@ -63,4 +63,11 @@ public interface ApiService {
     
     @GET("EVOwner/all")
     Call<List<User>> getAllEVOwners();
+    
+    // Deactivate/Activate EVOwner (EVOwner uses token; Backoffice may send NIC in body)
+    @POST("EVOwner/deactivate")
+    Call<ApiResponse> deactivateEVOwner();
+
+    @POST("EVOwner/activate")
+    Call<ApiResponse> activateEVOwner();
 }

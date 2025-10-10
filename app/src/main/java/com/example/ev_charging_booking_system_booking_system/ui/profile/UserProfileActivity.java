@@ -18,6 +18,12 @@ import com.example.ev_charging_booking_system_booking_system.database.models.Loc
 import com.example.ev_charging_booking_system_booking_system.utils.TokenManager;
 import com.google.android.material.textfield.TextInputEditText;
 import com.example.ev_charging_booking_system_booking_system.utils.Constants;
+import com.example.ev_charging_booking_system_booking_system.api.ApiClient;
+import com.example.ev_charging_booking_system_booking_system.api.ApiService;
+import com.example.ev_charging_booking_system_booking_system.model.ApiResponse;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.List;
 
@@ -325,24 +331,43 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void deactivateAccount() {
         showLoading(true);
-        
-        // Update local database
-        boolean deactivated = userRepository.deactivateUser(currentUser.getUserId());
-        
-        if (deactivated) {
-            // Update current user object
-            currentUser.setActive(false);
-            
-            // Update UI
-            populateUserData();
-            
-            Toast.makeText(this, "Account deactivated successfully. Contact back-office to reactivate.", 
-                    Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(this, "Failed to deactivate account. Please try again.", Toast.LENGTH_SHORT).show();
-        }
-        
-        showLoading(false);
+
+        // Call backend to deactivate account. EVOwner will use NIC from token on the server side.
+        ApiService apiService = ApiClient.getApiService(this);
+        Call<ApiResponse> call = apiService.deactivateEVOwner();
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
+                        // Update local database only after backend success
+                        boolean deactivated = userRepository.deactivateUser(currentUser.getUserId());
+                        if (deactivated) {
+                            currentUser.setActive(false);
+                            populateUserData();
+                        }
+                        Toast.makeText(UserProfileActivity.this, "Account deactivated successfully. Contact back-office to reactivate.", Toast.LENGTH_LONG).show();
+                    } else {
+                        String msg = "Failed to deactivate account on server.";
+                        if (response.errorBody() != null) {
+                            try { msg = response.errorBody().string(); } catch (Exception ignored) {}
+                        } else if (response.body() != null && response.body().getMessage() != null) {
+                            msg = response.body().getMessage();
+                        }
+                        Toast.makeText(UserProfileActivity.this, msg, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                runOnUiThread(() -> {
+                    showLoading(false);
+                    Toast.makeText(UserProfileActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }
+        });
     }
 
     private void showLoading(boolean show) {
