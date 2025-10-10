@@ -106,11 +106,20 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             tvBookingStatus.setText(status);
             setStatusColor(tvBookingStatus, status);
             
-            // Show QR code button only for approved and non-canceled bookings
-            if (booking.isApproved() && !booking.isCanceled()) {
-                btnViewQRCode.setVisibility(View.VISIBLE);
-            } else {
+            // Hide buttons for completed bookings
+            if (booking.isCompleted()) {
+                btnViewDetails.setVisibility(View.GONE);
                 btnViewQRCode.setVisibility(View.GONE);
+            } else {
+                // Show QR code button only for approved and non-canceled bookings
+                if (booking.isApproved() && !booking.isCanceled()) {
+                    btnViewQRCode.setVisibility(View.VISIBLE);
+                } else {
+                    btnViewQRCode.setVisibility(View.GONE);
+                }
+                
+                // Show view details button for non-completed bookings
+                btnViewDetails.setVisibility(View.VISIBLE);
             }
             
             // Set click listeners

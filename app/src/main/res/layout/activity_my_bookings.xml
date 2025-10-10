@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_light">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:paddingBottom="80dp">
 
         <!-- Header Section -->
         <LinearLayout
@@ -38,21 +43,45 @@
 
         </LinearLayout>
 
-        <!-- Create New Booking Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCreateNewBooking"
+        <!-- Filter Buttons -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Create New Reservation"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp"
-            android:textColor="@color/white"
-            app:backgroundTint="@color/green_500"
-            app:cornerRadius="16dp"
-            app:icon="@drawable/ic_add"
-            app:iconGravity="textStart"
-            style="@style/Widget.MaterialComponents.Button" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFilterUpcoming"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="Upcoming"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/green_500"
+                app:cornerRadius="12dp"
+                style="@style/Widget.MaterialComponents.Button" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFilterHistory"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:text="History"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_700"
+                app:backgroundTint="@color/white"
+                app:strokeColor="@color/green_500"
+                app:strokeWidth="2dp"
+                app:cornerRadius="12dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        </LinearLayout>
+
 
         <!-- Reservations List -->
         <androidx.recyclerview.widget.RecyclerView
@@ -111,3 +140,20 @@
     </LinearLayout>
 
 </ScrollView>
+
+<!-- Custom Create Button -->
+<ImageView
+    android:id="@+id/btnCreateNewBooking"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:layout_gravity="bottom|end"
+    android:layout_margin="20dp"
+    android:src="@drawable/create"
+    android:contentDescription="Create New Booking"
+    android:scaleType="fitCenter"
+    android:padding="12dp"
+    android:background="@drawable/custom_fab_background"
+    android:clickable="true"
+    android:focusable="true" />
+
+</FrameLayout>

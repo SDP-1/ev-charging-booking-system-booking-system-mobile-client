@@ -1,88 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center"
-    android:background="@color/white">
+    android:background="@color/background_light">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Booking QR Code"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:layout_marginBottom="16dp"
-        android:gravity="center" />
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:gravity="center">
 
-    <TextView
-        android:id="@+id/tvBookingInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Booking ID: Loading..."
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        android:layout_marginBottom="24dp"
-        android:gravity="center" />
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp">
 
-    <ImageView
-        android:id="@+id/ivQRCode"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/white_box"
-        android:padding="16dp"
-        android:visibility="gone" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Booking QR Code"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_700"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
 
-    <TextView
-        android:id="@+id/tvInstructions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Show this QR code at the charging station to confirm your reservation"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginBottom="24dp"
-        android:gravity="center"
-        android:visibility="gone" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Show this QR code at the charging station"
+                android:textSize="16sp"
+                android:textColor="@color/gray_600"
+                android:gravity="center" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnShareQRCode"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Share QR Code"
-        android:layout_marginBottom="8dp"
-        android:textColor="@color/button_text_light"
-        android:backgroundTint="@color/button_warning"
-        android:visibility="gone"
-        style="@style/Widget.MaterialComponents.Button" />
+        </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnRefreshQRCode"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Refresh QR Code"
-        android:textColor="@color/button_text_light"
-        android:backgroundTint="@color/button_secondary"
-        style="@style/Widget.MaterialComponents.Button" />
+        <!-- Booking Info Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/gray_200">
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:visibility="visible" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvError"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Error loading QR code"
-        android:textSize="16sp"
-        android:textColor="@android:color/holo_red_dark"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:visibility="gone" />
+                <!-- Header Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical">
 
-</LinearLayout>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Booking Details"
+                        android:textSize="14sp"
+                        android:textColor="@color/gray_600"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="● Active"
+                        android:textSize="12sp"
+                        android:textColor="@color/green_500"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <!-- Booking ID -->
+                <TextView
+                    android:id="@+id/tvBookingInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Booking ID: Loading..."
+                    android:textSize="16sp"
+                    android:textColor="@color/gray_700"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- QR Code Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/gray_200">
+
+            <ImageView
+                android:id="@+id/ivQRCode"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:padding="20dp"
+                android:visibility="gone" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Instructions Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/green_200">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_calendar"
+                    android:layout_marginEnd="12dp"
+                    android:layout_gravity="center_vertical"
+                    app:tint="@color/green_500" />
+
+                <TextView
+                    android:id="@+id/tvInstructions"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Show this QR code at the charging station to confirm your reservation"
+                    android:textSize="14sp"
+                    android:textColor="@color/gray_700"
+                    android:lineSpacingExtra="2dp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnShareQRCode"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Share QR Code"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/green_500"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_share"
+                app:iconGravity="textStart"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.Button" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefreshQRCode"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Refresh QR Code"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_500"
+                android:backgroundTint="@color/white"
+                app:strokeColor="@color/green_500"
+                app:strokeWidth="2dp"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_refresh"
+                app:iconGravity="textStart"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+        </LinearLayout>
+
+        <!-- Loading Indicator -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:visibility="visible"
+            android:indeterminateTint="@color/green_500" />
+
+        <!-- Error Message Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/button_danger">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_error"
+                    android:layout_marginEnd="12dp"
+                    android:layout_gravity="center_vertical"
+                    app:tint="@color/button_danger" />
+
+                <TextView
+                    android:id="@+id/tvError"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Error loading QR code"
+                    android:textSize="16sp"
+                    android:textColor="@color/button_danger" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</ScrollView>

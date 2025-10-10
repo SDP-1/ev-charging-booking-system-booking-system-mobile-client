@@ -1,160 +1,552 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#F5F5F5">
+    android:background="@color/background_light"
+    android:fillViewport="true"
+    android:scrollbars="vertical">
 
-    <TextView
-        android:id="@+id/tvGreeting"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Good Morning, User!"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="20dp" />
-
-    <!-- EV Owner Statistics (Hidden for Station Operators) -->
-    <LinearLayout
-        android:id="@+id/cardPendingReservations"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
         android:orientation="vertical"
-        android:background="@drawable/white_box"
-        android:padding="16dp"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"
-        android:visibility="visible">
+        android:padding="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pending Reservations"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_orange_dark" />
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
 
-        <TextView
-            android:id="@+id/tvPendingCount"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tvGreeting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Good Morning, User!"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_700"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Welcome to your EV charging dashboard"
+                android:textSize="16sp"
+                android:textColor="@color/gray_600" />
+
+        </LinearLayout>
+
+        <!-- Statistics Cards -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <!-- Pending Reservations Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardPendingReservations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:visibility="visible"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/button_warning">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Header Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar"
+                            android:layout_marginEnd="8dp"
+                            app:tint="@color/button_warning" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Pending Reservations"
+                            android:textSize="16sp"
+                            android:textColor="@color/gray_700"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="●"
+                            android:textSize="12sp"
+                            android:textColor="@color/button_warning" />
+
+                    </LinearLayout>
+
+                    <!-- Count and Description -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvPendingCount"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0"
+                            android:textSize="32sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/button_warning" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Awaiting approval"
+                            android:textSize="12sp"
+                            android:textColor="@color/white"
+                            android:background="@drawable/status_badge_background"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Approved Reservations Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardApprovedReservations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:visibility="visible"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/green_500">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <!-- Header Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar"
+                            android:layout_marginEnd="8dp"
+                            app:tint="@color/green_500" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Approved Reservations"
+                            android:textSize="16sp"
+                            android:textColor="@color/gray_700"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="●"
+                            android:textSize="12sp"
+                            android:textColor="@color/green_500" />
+
+                    </LinearLayout>
+
+                    <!-- Count and Description -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvApprovedCount"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0"
+                            android:textSize="32sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/green_500" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ready to use"
+                            android:textSize="12sp"
+                            android:textColor="@color/white"
+                            android:background="@drawable/status_badge_background"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- Station Operator Statistics (Hidden for EV Owners) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDoneServices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/button_primary">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Header Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_calendar"
+                        android:layout_marginEnd="8dp"
+                        app:tint="@color/button_primary" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Done Services"
+                        android:textSize="16sp"
+                        android:textColor="@color/gray_700"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="●"
+                        android:textSize="12sp"
+                        android:textColor="@color/button_primary" />
+
+                </LinearLayout>
+
+                <!-- Count and Description -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvDoneServicesCount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="0"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/button_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Completed"
+                        android:textSize="12sp"
+                        android:textColor="@color/white"
+                        android:background="@drawable/status_badge_background"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Nearby Stations Map Section (Hidden for Station Operators) -->
+        <LinearLayout
+            android:id="@+id/layoutNearbyStations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nearby Charging Stations"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/green_700"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Map Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/gray_200">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                     <!-- Map Header -->
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="horizontal"
+                         android:padding="16dp"
+                         android:background="@color/white"
+                         android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_location"
+                            android:layout_marginEnd="8dp"
+                            app:tint="@color/black" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Find Charging Stations Near You"
+                            android:textSize="16sp"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStationCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0 stations"
+                            android:textSize="12sp"
+                            android:textColor="@color/black"
+                            android:alpha="0.8" />
+
+                    </LinearLayout>
+
+                    <!-- Map Container -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp"
+                        android:layout_margin="8dp">
+
+                        <!-- Map View -->
+                        <org.osmdroid.views.MapView
+                            android:id="@+id/mapView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true" />
+
+                        <!-- Map Controls Overlay -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:layout_margin="8dp"
+                            android:orientation="vertical">
+
+                            <!-- My Location Button -->
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                                android:id="@+id/fabMyLocation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
+                                android:src="@drawable/ic_my_location"
+                                android:contentDescription="My Location"
+                                app:fabSize="mini"
+                                app:backgroundTint="@color/green_500"
+                                app:tint="@color/white" />
+
+                            <!-- Zoom In Button -->
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                                android:id="@+id/fabZoomIn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
+                                android:src="@drawable/ic_zoom_in"
+                                android:contentDescription="Zoom In"
+                                app:fabSize="mini"
+                                app:backgroundTint="@color/white"
+                                app:tint="@color/green_500" />
+
+                            <!-- Zoom Out Button -->
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                                android:id="@+id/fabZoomOut"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/ic_zoom_out"
+                                android:contentDescription="Zoom Out"
+                                app:fabSize="mini"
+                                app:backgroundTint="@color/white"
+                                app:tint="@color/green_500" />
+
+                        </LinearLayout>
+
+                    </FrameLayout>
+
+                    <!-- Map Actions -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="12dp"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnRefreshStations"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="Refresh"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="6dp"
+                            android:textColor="@color/green_500"
+                            android:backgroundTint="@color/white"
+                            app:strokeColor="@color/green_500"
+                            app:strokeWidth="1dp"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_refresh"
+                            app:iconGravity="textStart"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnViewAllStations"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="View All"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:layout_marginStart="6dp"
+                            android:textColor="@color/white"
+                            app:backgroundTint="@color/green_500"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_location"
+                            app:iconGravity="textStart"
+                            style="@style/Widget.MaterialComponents.Button" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <!-- Quick Actions Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quick Actions"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@android:color/holo_orange_dark" />
+            android:textColor="@color/green_700"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Create New Booking -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCreateBooking"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Create New Booking"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/green_500"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_add"
+                app:iconGravity="textStart"
+                style="@style/Widget.MaterialComponents.Button" />
+
+            <!-- View My Bookings -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewMyBookings"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="View My Bookings"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/green_500"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_calendar"
+                app:iconGravity="textStart"
+                style="@style/Widget.MaterialComponents.Button" />
+
+            <!-- QR Code Scanner (Station Operator) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnQRScanner"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="QR Code Scanner (Operator)"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/green_500"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_qr_code"
+                app:iconGravity="textStart"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.Button" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/cardApprovedReservations"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="vertical"
-        android:background="@drawable/white_box"
-        android:padding="16dp"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"
-        android:visibility="visible">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Approved Reservations"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_green_dark" />
-
-        <TextView
-            android:id="@+id/tvApprovedCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_green_dark" />
-
-    </LinearLayout>
-
-    <!-- Station Operator Statistics (Hidden for EV Owners) -->
-    <LinearLayout
-        android:id="@+id/cardDoneServices"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="vertical"
-        android:background="@drawable/white_box"
-        android:padding="16dp"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Done Services"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_blue_dark" />
-
-        <TextView
-            android:id="@+id/tvDoneServicesCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_blue_dark" />
-
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Quick Actions"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="12dp" />
-
-    <!-- Station Management / Finding -->
-    <Button
-        android:id="@+id/btnViewNearbyStations"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Find Nearby Charging Stations"
-        android:background="@drawable/lavender_round"
-        android:textColor="@android:color/white"
-        android:layout_marginBottom="8dp" />
-
-    <!-- EV Owner Features -->
-    <Button
-        android:id="@+id/btnCreateBooking"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create New Booking"
-        android:background="@drawable/lavender_round"
-        android:textColor="@android:color/white"
-        android:layout_marginBottom="8dp" />
-
-    <Button
-        android:id="@+id/btnViewMyBookings"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View My Bookings"
-        android:background="@drawable/lavender_round"
-        android:textColor="@android:color/white"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Station Operator Features -->
-    <Button
-        android:id="@+id/btnQRScanner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="QR Code Scanner (Operator)"
-        android:background="@drawable/lavender_round"
-        android:textColor="@android:color/white"
-        android:visibility="gone" />
-
-</LinearLayout>
+</ScrollView>

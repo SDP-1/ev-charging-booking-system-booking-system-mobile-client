@@ -45,6 +45,7 @@
     <color name="gradient_end">#FF357ABD</color>
     
     <!-- Modern Login Design Colors -->
+    <color name="green_200">#FFA7F3D0</color>              <!-- Light green for subtle accents -->
     <color name="green_500">#36a439</color>              <!-- Primary green for buttons and accents -->
     <color name="green_700">#2d7a2f</color>              <!-- Darker green for headers -->
     <color name="gray_200">#FFE5E7EB</color>              <!-- Very light gray for card borders -->

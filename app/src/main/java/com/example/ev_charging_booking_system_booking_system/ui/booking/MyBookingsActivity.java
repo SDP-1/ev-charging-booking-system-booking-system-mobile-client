@@ -12,13 +12,21 @@ import com.example.ev_charging_booking_system_booking_system.databinding.Activit
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
 import com.example.ev_charging_booking_system_booking_system.repository.BookingRepository;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MyBookingsActivity extends AppCompatActivity implements BookingsAdapter.OnBookingActionListener {
     
     private ActivityMyBookingsBinding binding;
     private BookingRepository bookingRepository;
     private BookingsAdapter adapter;
+    private List<BookingResponseDto> allBookings = new ArrayList<>();
+    private String currentFilter = "upcoming"; // "upcoming", "history"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +51,9 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
             Intent intent = new Intent(this, BookingActivity.class);
             startActivity(intent);
         });
+        
+        // Setup filter buttons
+        setupFilterButtons();
     }
     
     private void setupRecyclerView() {
@@ -51,6 +62,120 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
         binding.recyclerViewBookings.setAdapter(adapter);
     }
     
+    private void setupFilterButtons() {
+        binding.btnFilterUpcoming.setOnClickListener(v -> {
+            currentFilter = "upcoming";
+            updateFilterButtons();
+            filterBookings();
+        });
+        
+        binding.btnFilterHistory.setOnClickListener(v -> {
+            currentFilter = "history";
+            updateFilterButtons();
+            filterBookings();
+        });
+    }
+    
+    private void updateFilterButtons() {
+        // Reset all buttons to outlined style
+        binding.btnFilterUpcoming.setBackgroundTintList(getColorStateList(android.R.color.transparent));
+        binding.btnFilterUpcoming.setTextColor(getColorStateList(com.example.ev_charging_booking_system_booking_system.R.color.green_700));
+        binding.btnFilterUpcoming.setStrokeColor(getColorStateList(com.example.ev_charging_booking_system_booking_system.R.color.green_500));
+        binding.btnFilterUpcoming.setStrokeWidth(2);
+        
+        binding.btnFilterHistory.setBackgroundTintList(getColorStateList(android.R.color.transparent));
+        binding.btnFilterHistory.setTextColor(getColorStateList(com.example.ev_charging_booking_system_booking_system.R.color.green_700));
+        binding.btnFilterHistory.setStrokeColor(getColorStateList(com.example.ev_charging_booking_system_booking_system.R.color.green_500));
+        binding.btnFilterHistory.setStrokeWidth(2);
+        
+        // Set active button style
+        switch (currentFilter) {
+            case "upcoming":
+                binding.btnFilterUpcoming.setBackgroundTintList(getColorStateList(com.example.ev_charging_booking_system_booking_system.R.color.green_500));
+                binding.btnFilterUpcoming.setTextColor(getColorStateList(android.R.color.white));
+                binding.btnFilterUpcoming.setStrokeWidth(0);
+                break;
+            case "history":
+                binding.btnFilterHistory.setBackgroundTintList(getColorStateList(com.example.ev_charging_booking_system_booking_system.R.color.green_500));
+                binding.btnFilterHistory.setTextColor(getColorStateList(android.R.color.white));
+                binding.btnFilterHistory.setStrokeWidth(0);
+                break;
+        }
+    }
+    
+    private void filterBookings() {
+        List<BookingResponseDto> filteredBookings = new ArrayList<>();
+        Date currentDate = new Date();
+        
+        for (BookingResponseDto booking : allBookings) {
+            boolean shouldInclude = false;
+            
+            switch (currentFilter) {
+                case "upcoming":
+                    // Show pending and approved reservations
+                    shouldInclude = (!booking.isCanceled() && !booking.isCompleted());
+                    break;
+                case "history":
+                    // Show cancelled reservations
+                    shouldInclude = booking.isCanceled();
+                    break;
+            }
+            
+            if (shouldInclude) {
+                filteredBookings.add(booking);
+            }
+        }
+        
+        adapter.updateBookings(filteredBookings);
+        
+        // Show empty state if no bookings match filter
+        if (filteredBookings.isEmpty()) {
+            showEmptyState(true);
+        } else {
+            showEmptyState(false);
+        }
+    }
+    
+    private boolean isBookingInFuture(BookingResponseDto booking, Date currentDate) {
+        if (booking.getReservationDateTime() == null) {
+            return false;
+        }
+        
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            Date bookingDate = format.parse(booking.getReservationDateTime());
+            return bookingDate.after(currentDate);
+        } catch (ParseException e) {
+            try {
+                SimpleDateFormat formatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                Date bookingDate = formatWithoutMillis.parse(booking.getReservationDateTime());
+                return bookingDate.after(currentDate);
+            } catch (ParseException e2) {
+                return false;
+            }
+        }
+    }
+    
+    private boolean isBookingInPast(BookingResponseDto booking, Date currentDate) {
+        if (booking.getReservationDateTime() == null) {
+            return false;
+        }
+        
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            Date bookingDate = format.parse(booking.getReservationDateTime());
+            return bookingDate.before(currentDate);
+        } catch (ParseException e) {
+            try {
+                SimpleDateFormat formatWithoutMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                Date bookingDate = formatWithoutMillis.parse(booking.getReservationDateTime());
+                return bookingDate.before(currentDate);
+            } catch (ParseException e2) {
+                return false;
+            }
+        }
+    }
+
     private void loadBookings() {
         showProgress(true);
         
@@ -59,12 +184,8 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
             public void onSuccess(List<BookingResponseDto> result) {
                 runOnUiThread(() -> {
                     showProgress(false);
-                    if (result.isEmpty()) {
-                        showEmptyState(true);
-                    } else {
-                        showEmptyState(false);
-                        adapter.updateBookings(result);
-                    }
+                    allBookings = new ArrayList<>(result);
+                    filterBookings();
                 });
             }
             

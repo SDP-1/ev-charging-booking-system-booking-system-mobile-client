@@ -9,6 +9,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+
 import com.example.ev_charging_booking_system_booking_system.R;
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityDashboardBinding;
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
@@ -16,6 +22,7 @@ import com.example.ev_charging_booking_system_booking_system.repository.BookingR
 import com.example.ev_charging_booking_system_booking_system.ui.booking.BookingActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.booking.MyBookingsActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.maps.NearbyStationsActivity;
+import com.example.ev_charging_booking_system_booking_system.ui.operator.DoneServicesActivity;
 import com.example.ev_charging_booking_system_booking_system.ui.operator.QRScannerActivity;
 import com.example.ev_charging_booking_system_booking_system.utils.Constants;
 import com.example.ev_charging_booking_system_booking_system.utils.TokenManager;
@@ -38,6 +45,7 @@ public class Dashboard extends AppCompatActivity {
 
         setupViews();
         setupClickListeners();
+        setupMap();
         loadDashboardData();
     }
 
@@ -92,9 +100,10 @@ public class Dashboard extends AppCompatActivity {
         binding.btnCreateBooking.setVisibility(View.GONE);
         binding.btnViewMyBookings.setVisibility(View.GONE);
         
-        // Show station management features
-        binding.btnViewNearbyStations.setText("Manage Stations");
-        binding.btnViewNearbyStations.setVisibility(View.VISIBLE);
+        // Hide nearby stations map for Station Operators
+        binding.layoutNearbyStations.setVisibility(View.GONE);
+        
+        // Station management features removed
     }
 
     private void configureForEVOwner() {
@@ -104,13 +113,14 @@ public class Dashboard extends AppCompatActivity {
         binding.btnCreateBooking.setVisibility(View.VISIBLE);
         binding.btnViewMyBookings.setVisibility(View.VISIBLE);
         
+        // Show nearby stations map for EV Owners
+        binding.layoutNearbyStations.setVisibility(View.VISIBLE);
+        
         // Hide Station Operator features
         binding.cardDoneServices.setVisibility(View.GONE);
         binding.btnQRScanner.setVisibility(View.GONE);
         
-        // Show station finder
-        binding.btnViewNearbyStations.setText("Find Nearby Charging Stations");
-        binding.btnViewNearbyStations.setVisibility(View.VISIBLE);
+        // Station finder removed
     }
 
     private String getRoleDisplayText(String role) {
@@ -146,8 +156,8 @@ public class Dashboard extends AppCompatActivity {
         // Done Services card click (Station Operators only)
         binding.cardDoneServices.setOnClickListener(v -> {
             if (Constants.ROLE_STATION_OPERATOR.equals(userRole)) {
-                // TODO: Navigate to completed services list
-                Toast.makeText(this, "View completed services", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Dashboard.this, DoneServicesActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -167,20 +177,7 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-        // Nearby stations button (different behavior based on role)
-        binding.btnViewNearbyStations.setOnClickListener(v -> {
-            if (Constants.ROLE_STATION_OPERATOR.equals(userRole)) {
-                // Station operators manage stations
-                Intent intent = new Intent(Dashboard.this, NearbyStationsActivity.class);
-                intent.putExtra("mode", "manage");
-                startActivity(intent);
-            } else {
-                // EV owners find stations
-                Intent intent = new Intent(Dashboard.this, NearbyStationsActivity.class);
-                intent.putExtra("mode", "find");
-                startActivity(intent);
-            }
-        });
+        // Nearby stations button removed
 
         // QR scanner button (Station Operators only)
         binding.btnQRScanner.setOnClickListener(v -> {
@@ -189,6 +186,88 @@ public class Dashboard extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void setupMap() {
+        try {
+            // Initialize OSMDroid configuration
+            Configuration.getInstance().load(this, getSharedPreferences("osmdroid", MODE_PRIVATE));
+            Configuration.getInstance().setUserAgentValue("EVChargingApp/1.0");
+            
+            // Setup map view
+            MapView mapView = binding.mapView;
+            mapView.setTileSource(TileSourceFactory.MAPNIK);
+            mapView.setMultiTouchControls(true);
+            mapView.setBuiltInZoomControls(false);
+            
+            // Enable proper touch handling
+            mapView.setClickable(true);
+            mapView.setFocusable(true);
+            mapView.setFocusableInTouchMode(true);
+            
+            // Set initial location (you can change this to your preferred location)
+            mapView.getController().setZoom(12.0);
+            mapView.getController().setCenter(new GeoPoint(6.9271, 79.8612)); // Colombo, Sri Lanka
+            
+            // Add some sample charging station markers
+            addSampleStations(mapView);
+            
+            // Setup map controls
+            binding.fabMyLocation.setOnClickListener(v -> {
+                // Center map on a default location (you can implement GPS location here)
+                mapView.getController().setCenter(new GeoPoint(6.9271, 79.8612));
+                mapView.getController().setZoom(15.0);
+            });
+            
+            binding.fabZoomIn.setOnClickListener(v -> {
+                mapView.getController().zoomIn();
+            });
+            
+            binding.fabZoomOut.setOnClickListener(v -> {
+                mapView.getController().zoomOut();
+            });
+            
+            // Setup map action buttons
+            binding.btnRefreshStations.setOnClickListener(v -> {
+                Toast.makeText(this, "Refreshing nearby stations...", Toast.LENGTH_SHORT).show();
+                // Add logic to refresh station data here
+            });
+            
+            binding.btnViewAllStations.setOnClickListener(v -> {
+                Intent intent = new Intent(this, NearbyStationsActivity.class);
+                startActivity(intent);
+            });
+            
+            // Update station count
+            binding.tvStationCount.setText("3 nearby stations");
+            
+        } catch (Exception e) {
+            Toast.makeText(this, "Map initialization failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+    
+    private void addSampleStations(MapView mapView) {
+        // Add sample charging stations
+        Marker station1 = new Marker(mapView);
+        station1.setPosition(new GeoPoint(6.9271, 79.8612));
+        station1.setTitle("Colombo Central Station");
+        station1.setSnippet("Fast charging available");
+        mapView.getOverlays().add(station1);
+        
+        Marker station2 = new Marker(mapView);
+        station2.setPosition(new GeoPoint(6.9350, 79.8500));
+        station2.setTitle("Kandy Road Station");
+        station2.setSnippet("24/7 charging");
+        mapView.getOverlays().add(station2);
+        
+        Marker station3 = new Marker(mapView);
+        station3.setPosition(new GeoPoint(6.9200, 79.8700));
+        station3.setTitle("Galle Road Station");
+        station3.setSnippet("Solar powered");
+        mapView.getOverlays().add(station3);
+        
+        // Refresh the map
+        mapView.invalidate();
     }
 
     private void loadDashboardData() {
@@ -295,5 +374,21 @@ public class Dashboard extends AppCompatActivity {
         super.onResume();
         // Refresh dashboard data when returning to the screen
         loadDashboardData();
+        // Resume map
+        binding.mapView.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Pause map
+        binding.mapView.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clean up map resources
+        binding.mapView.onDetach();
     }
 }

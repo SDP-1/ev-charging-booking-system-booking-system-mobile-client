@@ -367,8 +367,7 @@
                         android:text="-"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/white"
-                        android:background="@drawable/status_badge_background"
+                        android:textColor="@color/green_700"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="4dp" />
 

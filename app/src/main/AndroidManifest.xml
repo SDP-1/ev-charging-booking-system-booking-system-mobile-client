@@ -92,6 +92,13 @@
             android:theme="@style/Theme.Evchargingbookingsystembookingsystem"
             android:screenOrientation="portrait" />
 
+        <!-- Station Operator Done Services Activity -->
+        <activity
+            android:name=".ui.operator.DoneServicesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Evchargingbookingsystembookingsystem"
+            android:parentActivityName=".ui.home.Dashboard" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false"
