@@ -151,6 +151,11 @@ public class UserRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         
         try {
+            Log.d(TAG, "=== UPDATE USER PROFILE ===");
+            Log.d(TAG, "User ID: " + userId);
+            Log.d(TAG, "Email to save: '" + email + "'");
+            Log.d(TAG, "Phone to save: '" + phone + "'");
+            
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_EMAIL, email);
             values.put(DatabaseHelper.COLUMN_PHONE, phone);
@@ -162,6 +167,8 @@ public class UserRepository {
                 DatabaseHelper.COLUMN_USER_ID + " = ?",
                 new String[]{userId}
             );
+            
+            Log.d(TAG, "Rows affected: " + rowsAffected);
             
             return rowsAffected > 0;
             
@@ -278,15 +285,34 @@ public class UserRepository {
     private LocalUser cursorToUser(Cursor cursor) {
         LocalUser user = new LocalUser();
         
-        user.setUserId(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ID)));
-        user.setUsername(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USERNAME)));
-        user.setNic(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_NIC)));
-        user.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EMAIL)));
-        user.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PHONE)));
-        user.setRole(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ROLE)));
-        user.setActive(cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ACTIVE)) == 1);
-        user.setCreatedDate(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CREATED_DATE)));
-        user.setLastSync(cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_LAST_SYNC)));
+        String userId = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ID));
+        String username = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USERNAME));
+        String nic = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_NIC));
+        String email = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EMAIL));
+        String phone = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PHONE));
+        String role = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ROLE));
+        boolean active = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_ACTIVE)) == 1;
+        String createdDate = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CREATED_DATE));
+        String lastSync = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_LAST_SYNC));
+        
+        Log.d(TAG, "=== CURSOR TO USER ===");
+        Log.d(TAG, "User ID: " + userId);
+        Log.d(TAG, "Username: " + username);
+        Log.d(TAG, "NIC: " + nic);
+        Log.d(TAG, "Email from DB: '" + email + "'");
+        Log.d(TAG, "Phone from DB: '" + phone + "'");
+        Log.d(TAG, "Role: " + role);
+        Log.d(TAG, "Active: " + active);
+        
+        user.setUserId(userId);
+        user.setUsername(username);
+        user.setNic(nic);
+        user.setEmail(email);
+        user.setPhone(phone);
+        user.setRole(role);
+        user.setActive(active);
+        user.setCreatedDate(createdDate);
+        user.setLastSync(lastSync);
         
         return user;
     }

@@ -182,10 +182,37 @@ public class UserProfileActivity extends AppCompatActivity {
     }
 
     private void populateUserData() {
+        android.util.Log.d("UserProfileActivity", "=== POPULATING USER DATA ===");
+        android.util.Log.d("UserProfileActivity", "Username: " + currentUser.getUsername());
+        android.util.Log.d("UserProfileActivity", "NIC: " + currentUser.getNic());
+        android.util.Log.d("UserProfileActivity", "Email: '" + currentUser.getEmail() + "'");
+        android.util.Log.d("UserProfileActivity", "Phone: '" + currentUser.getPhone() + "'");
+        android.util.Log.d("UserProfileActivity", "Role: " + currentUser.getRole());
+        android.util.Log.d("UserProfileActivity", "Active: " + currentUser.isActive());
+        
+        // Populate username and NIC (read-only fields)
         etUsername.setText(currentUser.getUsername());
         etNic.setText(currentUser.getNic());
-        etEmail.setText(currentUser.getEmail());
-        etPhone.setText(currentUser.getPhone());
+        
+        // Populate email - show existing value or empty for user to fill
+        String email = currentUser.getEmail();
+        if (email != null && !email.isEmpty()) {
+            etEmail.setText(email);
+            android.util.Log.d("UserProfileActivity", "Email field set to: " + email);
+        } else {
+            etEmail.setText(""); // Clear field so user can enter
+            android.util.Log.d("UserProfileActivity", "Email is null or empty, clearing field");
+        }
+        
+        // Populate phone - show existing value or empty for user to fill
+        String phone = currentUser.getPhone();
+        if (phone != null && !phone.isEmpty()) {
+            etPhone.setText(phone);
+            android.util.Log.d("UserProfileActivity", "Phone field set to: " + phone);
+        } else {
+            etPhone.setText(""); // Clear field so user can enter
+            android.util.Log.d("UserProfileActivity", "Phone is null or empty, clearing field");
+        }
         
         // Display role with proper formatting
         String roleDisplayText = getRoleDisplayText(currentUser.getRole());
@@ -232,6 +259,11 @@ public class UserProfileActivity extends AppCompatActivity {
         String email = etEmail.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
         
+        android.util.Log.d("UserProfileActivity", "=== UPDATING PROFILE ===");
+        android.util.Log.d("UserProfileActivity", "User ID: " + currentUser.getUserId());
+        android.util.Log.d("UserProfileActivity", "New Email: '" + email + "'");
+        android.util.Log.d("UserProfileActivity", "New Phone: '" + phone + "'");
+        
         // Update local database
         boolean updated = userRepository.updateUserProfile(currentUser.getUserId(), email, phone);
         
@@ -240,8 +272,19 @@ public class UserProfileActivity extends AppCompatActivity {
             currentUser.setEmail(email);
             currentUser.setPhone(phone);
             
+            android.util.Log.d("UserProfileActivity", "Profile updated successfully in database");
+            
+            // Reload user data from database to confirm the update
+            LocalUser reloadedUser = userRepository.getUserById(currentUser.getUserId());
+            if (reloadedUser != null) {
+                android.util.Log.d("UserProfileActivity", "Reloaded user - Email: '" + reloadedUser.getEmail() + "', Phone: '" + reloadedUser.getPhone() + "'");
+                currentUser = reloadedUser;
+                populateUserData(); // Refresh the UI with updated data
+            }
+            
             Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
         } else {
+            android.util.Log.e("UserProfileActivity", "Failed to update profile in database");
             Toast.makeText(this, "Failed to update profile. Please try again.", Toast.LENGTH_SHORT).show();
         }
         

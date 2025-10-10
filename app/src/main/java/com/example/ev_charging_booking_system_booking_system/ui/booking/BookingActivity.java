@@ -145,14 +145,12 @@ public class BookingActivity extends AppCompatActivity {
             return;
         }
         
-        String[] stationNames = new String[chargingStations.size()];
-        for (int i = 0; i < chargingStations.size(); i++) {
-            stationNames[i] = chargingStations.get(i).getDisplayName();
-        }
+        // Create custom adapter for better looking list items
+        StationListAdapter adapter = new StationListAdapter(this, chargingStations);
         
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Select Charging Station")
-                .setItems(stationNames, (dialog, which) -> {
+                .setAdapter(adapter, (dialog, which) -> {
                     selectedStation = chargingStations.get(which);
                     binding.etStationId.setText(selectedStation.getDisplayName());
                     // Clear slot selection when station changes
