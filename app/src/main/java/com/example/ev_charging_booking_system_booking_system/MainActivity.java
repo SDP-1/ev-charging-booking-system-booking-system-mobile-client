@@ -16,6 +16,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityMainBinding;
 import com.example.ev_charging_booking_system_booking_system.utils.TokenManager;
@@ -73,11 +74,23 @@ public class MainActivity extends AppCompatActivity {
                 binding.drawerLayout.closeDrawers();
                 return true;
             } else if (item.getItemId() == R.id.nav_create_booking) {
+                // Check if user is active before allowing booking creation
+                if (!isUserActive()) {
+                    showAccountDeactivatedAlert();
+                    binding.drawerLayout.closeDrawers();
+                    return true;
+                }
                 Intent intent = new Intent(MainActivity.this, com.example.ev_charging_booking_system_booking_system.ui.booking.BookingActivity.class);
                 startActivity(intent);
                 binding.drawerLayout.closeDrawers();
                 return true;
             } else if (item.getItemId() == R.id.nav_my_bookings) {
+                // Check if user is active before allowing access to bookings
+                if (!isUserActive()) {
+                    showAccountDeactivatedAlert();
+                    binding.drawerLayout.closeDrawers();
+                    return true;
+                }
                 Intent intent = new Intent(MainActivity.this, com.example.ev_charging_booking_system_booking_system.ui.booking.MyBookingsActivity.class);
                 startActivity(intent);
                 binding.drawerLayout.closeDrawers();
@@ -157,5 +170,32 @@ public class MainActivity extends AppCompatActivity {
             // Handle any errors silently
             android.util.Log.e("MainActivity", "Error loading user info: " + e.getMessage());
         }
+    }
+    
+    private boolean isUserActive() {
+        try {
+            UserRepository userRepository = new UserRepository(this);
+            TokenManager tokenManager = new TokenManager(this);
+            String currentUserId = tokenManager.getUserId();
+            
+            if (currentUserId != null) {
+                LocalUser user = userRepository.getUserById(currentUserId);
+                if (user != null) {
+                    return user.isActive();
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("MainActivity", "Error checking user status: " + e.getMessage());
+        }
+        return false; // Default to inactive if unable to determine
+    }
+    
+    private void showAccountDeactivatedAlert() {
+        new AlertDialog.Builder(this)
+                .setTitle("Account Not Activated")
+                .setMessage("Your account is currently deactivated. Please contact back-office to reactivate your account before accessing booking features.")
+                .setPositiveButton("OK", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 }

@@ -5,12 +5,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityMyBookingsBinding;
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
 import com.example.ev_charging_booking_system_booking_system.repository.BookingRepository;
+import com.example.ev_charging_booking_system_booking_system.database.repositories.UserRepository;
+import com.example.ev_charging_booking_system_booking_system.database.models.LocalUser;
+import com.example.ev_charging_booking_system_booking_system.utils.TokenManager;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,6 +35,14 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        // Check if user account is active before allowing access
+        if (!isUserActive()) {
+            showAccountDeactivatedAlert();
+            finish();
+            return;
+        }
+        
         binding = ActivityMyBookingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         
@@ -240,5 +252,33 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+    
+    private boolean isUserActive() {
+        try {
+            UserRepository userRepository = new UserRepository(this);
+            TokenManager tokenManager = new TokenManager(this);
+            String currentUserId = tokenManager.getUserId();
+            
+            if (currentUserId != null) {
+                LocalUser user = userRepository.getUserById(currentUserId);
+                if (user != null) {
+                    return user.isActive();
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("MyBookingsActivity", "Error checking user status: " + e.getMessage());
+        }
+        return false; // Default to inactive if unable to determine
+    }
+    
+    private void showAccountDeactivatedAlert() {
+        new AlertDialog.Builder(this)
+                .setTitle("Account Not Activated")
+                .setMessage("Your account is currently deactivated. Please contact back-office to reactivate your account before accessing booking features.")
+                .setPositiveButton("OK", (dialog, which) -> finish())
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setCancelable(false)
+                .show();
     }
 }
