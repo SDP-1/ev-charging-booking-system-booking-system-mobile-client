@@ -9,6 +9,7 @@ import com.example.ev_charging_booking_system_booking_system.api.ApiClient;
 import com.example.ev_charging_booking_system_booking_system.model.ApiResponse;
 import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
 import com.example.ev_charging_booking_system_booking_system.models.dto.*;
+import com.example.ev_charging_booking_system_booking_system.database.repositories.BookingDatabaseRepository;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class BookingRepository {
     private static final String TAG = "BookingRepository";
     private final ApiService apiService;
     private final SharedPreferences sharedPreferences;
+    private final BookingDatabaseRepository bookingDbRepo;
 
     public interface BookingCallback<T> {
         void onSuccess(T result);
@@ -29,6 +31,7 @@ public class BookingRepository {
     public BookingRepository(Context context) {
         this.apiService = ApiClient.getApiService(context);
         this.sharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE);
+        this.bookingDbRepo = new BookingDatabaseRepository(context);
     }
 
     private String getAuthToken() {
@@ -115,8 +118,14 @@ public class BookingRepository {
             @Override
             public void onResponse(Call<BookingResponseDto> call, Response<BookingResponseDto> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Booking created successfully: " + response.body().getId());
-                    callback.onSuccess(response.body());
+                    BookingResponseDto booking = response.body();
+                    Log.d(TAG, "Booking created successfully: " + booking.getId());
+                    
+                    // Save to local database
+                    bookingDbRepo.syncBookingFromApi(booking);
+                    Log.d(TAG, "Booking saved to local database");
+                    
+                    callback.onSuccess(booking);
                 } else {
                     String error = "Failed to create booking. Code: " + response.code();
                     Log.e(TAG, error);
@@ -142,8 +151,14 @@ public class BookingRepository {
             @Override
             public void onResponse(Call<BookingResponseDto> call, Response<BookingResponseDto> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Booking updated successfully: " + response.body().getId());
-                    callback.onSuccess(response.body());
+                    BookingResponseDto booking = response.body();
+                    Log.d(TAG, "Booking updated successfully: " + booking.getId());
+                    
+                    // Update in local database
+                    bookingDbRepo.syncBookingFromApi(booking);
+                    Log.d(TAG, "Booking updated in local database");
+                    
+                    callback.onSuccess(booking);
                 } else {
                     String error = "Failed to update booking. Code: " + response.code();
                     Log.e(TAG, error);
@@ -168,6 +183,11 @@ public class BookingRepository {
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG, "Booking canceled successfully: " + bookingId);
+                    
+                    // Update local database - set canceled = true
+                    bookingDbRepo.updateBookingStatus(bookingId, false, false, false, true);
+                    Log.d(TAG, "Booking status updated in local database (canceled)");
+                    
                     callback.onSuccess("Booking canceled successfully");
                 } else {
                     String error = "Failed to cancel booking. Code: " + response.code();
@@ -192,8 +212,13 @@ public class BookingRepository {
             @Override
             public void onResponse(Call<BookingResponseDto> call, Response<BookingResponseDto> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "Booking retrieved successfully: " + response.body().getId());
-                    callback.onSuccess(response.body());
+                    BookingResponseDto booking = response.body();
+                    Log.d(TAG, "Booking retrieved successfully: " + booking.getId());
+                    
+                    // Save/update in local database
+                    bookingDbRepo.syncBookingFromApi(booking);
+                    
+                    callback.onSuccess(booking);
                 } else {
                     String error = "Failed to get booking. Code: " + response.code();
                     Log.e(TAG, error);
@@ -217,8 +242,14 @@ public class BookingRepository {
             @Override
             public void onResponse(Call<List<BookingResponseDto>> call, Response<List<BookingResponseDto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.d(TAG, "My bookings retrieved successfully. Count: " + response.body().size());
-                    callback.onSuccess(response.body());
+                    List<BookingResponseDto> bookings = response.body();
+                    Log.d(TAG, "My bookings retrieved successfully. Count: " + bookings.size());
+                    
+                    // Save all bookings to local database
+                    int synced = bookingDbRepo.syncBookingsFromApi(bookings);
+                    Log.d(TAG, "Synced " + synced + " bookings to local database");
+                    
+                    callback.onSuccess(bookings);
                 } else {
                     String error = "Failed to get my bookings. Code: " + response.code();
                     Log.e(TAG, error);
