@@ -12,17 +12,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ev_charging_booking_system_booking_system.R;
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
+import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.BookingViewHolder> {
     
     private List<BookingResponseDto> bookings = new ArrayList<>();
+    private Map<String, String> stationIdToNameMap = new HashMap<>();
     private Context context;
     private OnBookingActionListener listener;
     
@@ -34,6 +38,17 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
     public BookingsAdapter(Context context, OnBookingActionListener listener) {
         this.context = context;
         this.listener = listener;
+    }
+    
+    // Method to update station names mapping
+    public void setStationNames(List<ChargingStationDto> stations) {
+        stationIdToNameMap.clear();
+        if (stations != null) {
+            for (ChargingStationDto station : stations) {
+                stationIdToNameMap.put(station.getId(), station.getName());
+            }
+        }
+        notifyDataSetChanged();
     }
     
     @NonNull
@@ -93,9 +108,14 @@ public class BookingsAdapter extends RecyclerView.Adapter<BookingsAdapter.Bookin
             }
             tvBookingId.setText("ID: " + displayId);
             
-            // Add null safety for station ID
+            // Display station name instead of ID
             String stationId = booking.getStationId();
-            tvStationId.setText("Station: " + (stationId != null ? stationId : "N/A"));
+            String stationName = stationIdToNameMap.get(stationId);
+            if (stationName != null && !stationName.isEmpty()) {
+                tvStationId.setText("Station: " + stationName);
+            } else {
+                tvStationId.setText("Station: " + (stationId != null ? stationId : "N/A"));
+            }
             
             // Add null safety for reservation date time
             String reservationDateTime = booking.getReservationDateTime();

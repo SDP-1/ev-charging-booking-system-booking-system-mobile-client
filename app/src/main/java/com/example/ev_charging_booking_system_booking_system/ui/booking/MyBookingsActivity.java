@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.ev_charging_booking_system_booking_system.databinding.ActivityMyBookingsBinding;
 import com.example.ev_charging_booking_system_booking_system.models.dto.BookingResponseDto;
+import com.example.ev_charging_booking_system_booking_system.model.ChargingStationDto;
 import com.example.ev_charging_booking_system_booking_system.repository.BookingRepository;
 import com.example.ev_charging_booking_system_booking_system.database.repositories.UserRepository;
 import com.example.ev_charging_booking_system_booking_system.database.models.LocalUser;
@@ -72,6 +73,9 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
         adapter = new BookingsAdapter(this, this);
         binding.recyclerViewBookings.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewBookings.setAdapter(adapter);
+        
+        // Load station names for mapping
+        loadStationNames();
     }
     
     private void setupFilterButtons() {
@@ -208,6 +212,26 @@ public class MyBookingsActivity extends AppCompatActivity implements BookingsAda
                     showEmptyState(true);
                     Toast.makeText(MyBookingsActivity.this, "Error loading bookings: " + error, Toast.LENGTH_LONG).show();
                 });
+            }
+        });
+    }
+    
+    private void loadStationNames() {
+        // Fetch all stations to get their names
+        bookingRepository.getStationsWithAvailableSlots("", new BookingRepository.BookingCallback<List<ChargingStationDto>>() {
+            @Override
+            public void onSuccess(List<ChargingStationDto> stations) {
+                runOnUiThread(() -> {
+                    if (adapter != null) {
+                        adapter.setStationNames(stations);
+                    }
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                // Silently fail - station names are nice to have but not critical
+                android.util.Log.e("MyBookingsActivity", "Error loading station names: " + error);
             }
         });
     }
